@@ -1,7 +1,36 @@
-# vbaFunctions
+# VBA-Functions
 Functions I have created that could be helpful for others to use. 
 
->These are the ones I felt are easy for others to use as well. I have more specific functions, but not sure if I'll add these at this time.
+Example Funtion:
+
+```VB
+'=========================================================================
+' WAY OF CREATING A STRING USING THE WAY C# & JS PROGRAMMING LANGUAGES DO
+' EXAMPLE:
+'   myString("This {0} a test of\n {1} Function", Array("is", "myString"))
+' RESULT:
+'   "This is a test of" & vbnewline & "myString Function"
+'=========================================================================
+Public Function myString(Original As String, Optional Arr As Variant) As String
+    
+    Dim I As Integer
+    
+    'SPECIAL CHARACTERS TO MAKE NEWLINES\TABS EASIER
+    Original = Replace(Original, "\n", vbNewLine)
+    Original = Replace(Original, "\t", vbTab)
+    
+    'REPLACE WITH ARRAYS
+    If IsArray(Arr) Then
+        For I = LBound(Arr, 1) To UBound(Arr, 1)
+            Original = Replace(Original, "{" & I & "}", Arr(I))
+        Next I
+     End If
+    myString = Original
+
+End Function
+~~~
+
+>These are the ones I felt are easy for others to use as well, will plan on modifing some of my specific functions and add them once they are more distributable.
 
 Funtions:
 * myString - Allows putting variables in string. Makes for easy concatination.
