@@ -1,19 +1,25 @@
 
 '=========================================================================
-' WAY OF CREATING A STRING LIKE C# PROGRAMMING LANGUAGE DOES
+' WAY OF CREATING A STRING USING THE WAY C# & JS PROGRAMMING LANGUAGES DO
 ' EXAMPLE:
-'   myString("This {0} a test of {1} Function", Array("is", "myString"))
+'   myString("This {0} a test of\n {1} Function", Array("is", "myString"))
 ' RESULT:
-'   "This is a test of myString Function"
+'   "This is a test of" & vbnewline & "myString Function"
 '=========================================================================
-Public Function myString(Original As String, arr As Variant) As String
+Public Function myString(Original As String, Optional Arr As Variant) As String
     
     Dim I As Integer
     
-    For I = LBound(arr, 1) To UBound(arr, 1)
-        Original = Replace(Original, "{" & I & "}", arr(I))
-    Next I
+    'SPECIAL CHARACTERS TO MAKE NEWLINES\TABS EASIER
+    Original = Replace(Original, "\n", vbNewLine)
+    Original = Replace(Original, "\t", vbTab)
     
+    'REPLACE WITH ARRAYS
+    If IsArray(Arr) Then
+        For I = LBound(Arr, 1) To UBound(Arr, 1)
+            Original = Replace(Original, "{" & I & "}", Arr(I))
+        Next I
+     End If
     myString = Original
 
 End Function
