@@ -28,7 +28,7 @@ Public Function myString(Original As String, Optional Arr As Variant) As String
     myString = Original
 
 End Function
-~~~
+```
 
 >These are the ones I felt are easy for others to use as well, will plan on modifing some of my specific functions and add them once they are more distributable.
 
