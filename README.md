@@ -5,29 +5,103 @@ Example Funtion:
 
 ```VB
 '=========================================================================
-' WAY OF CREATING A STRING USING THE WAY C# & JS PROGRAMMING LANGUAGES DO
-' EXAMPLE:
-'   myString("This {0} a test of\n {1} Function", Array("is", "myString"))
-' RESULT:
-'   "This is a test of" & vbnewline & "myString Function"
+' Example call
 '=========================================================================
-Public Function myString(Original As String, Optional Arr As Variant) As String
+Sub testingTemplateStrings()
+
+    Dim S As New stringObject
+    Dim dict As New Dictionary
+    Dim col As New Collection
+    Dim arr As Variant
+
+    'Dictionaries are the best to use, since you can use the keys!! 
+        dict("name") = "Robert"
+        dict("age") = 29
+        Debug.Print StringTemplate("Hello, my name is ${name}\nand I am ${age} years old", d)
     
-    Dim I As Integer
+    'Collection example
+        col.Add "Robert"
+        col.Add 29
+        Debug.Print StringTemplate("Hello, my name is ${0} and I am ${1} years old", col)
     
-    'SPECIAL CHARACTERS TO MAKE NEWLINES\TABS EASIER
-    Original = Replace(Original, "\n", vbNewLine)
-    Original = Replace(Original, "\t", vbTab)
+    'Array example
+        arr = Array("Robert", 29)
+        Debug.Print StringTemplate("Hello, my name is ${0} and I am ${1} years old", arr)
     
-    'REPLACE WITH ARRAYS
-    If IsArray(Arr) Then
-        For I = LBound(Arr, 1) To UBound(Arr, 1)
-            Original = Replace(Original, "{" & I & "}", Arr(I))
-        Next I
-     End If
-    myString = Original
+    
+    'Passing Variables into the parameters (A cool and fast way of doing it!) 
+        Debug.Print StringTemplate("Hello, my name is ${0} and I am ${1} years old", "Robert", 29)
+    
+End Sub
+
+'=========================================================================
+' WAY OF CREATING A STRING SIMILAR TO HOW JS WORKS
+'=========================================================================
+Function StringTemplate(S As String, ParamArray Args() As Variant) As String
+
+    Dim i As Integer
+    Dim lb As Integer
+    Dim ub As Integer
+    Dim Obj As Dictionary
+    Dim Arr As Variant
+    Dim Reduce As Integer
+    Dim regEx As Object
+
+    'REGULAR EXPRESSION REPLACE SPECIAL CHARATERS
+    Set regEx = CreateObject("VBScript.RegExp")
+    regEx.Global = True
+
+    'newline
+    regEx.Pattern = "(^|[^\\])\\n"
+    S = regEx.Replace(S, "$1" & vbNewLine)
+
+    'tab
+    regEx.Pattern = "(^|[^\\])\\t"
+    S = regEx.Replace(S, "$1" & vbTab)
+
+
+    '============================================================
+    ' PASSED IN AS DICTIONARY (PASSED IN AS VARIABLES)
+    '============================================================
+    If TypeName(Args(0)) = "Dictionary" Then
+
+        Set Obj = Args(0)
+
+        For i = 0 To Obj.Count - 1
+            S = Replace(S, "${" & Obj.Keys(i) & "}", Obj.Items(i), , , vbTextCompare)
+        Next i
+        StringTemplate = S
+        Exit Function
+
+    End If
+
+    '============================================================
+    ' PASSED IN AS COLLECTION/ARRAY/ParamArray
+    '============================================================
+    If TypeName(Args(0)) = "Collection" Then
+        lb = 1
+        ub = Args(0).Count
+        Set Arr = Args(0)
+        Reduce = 1
+    ElseIf IsArray(Args(0)) Then
+        lb = LBound(Args(0), 1)
+        ub = UBound(Args(0), 1)
+        Arr = Args(0)
+    Else
+        lb = LBound(Args, 1)
+        ub = UBound(Args, 1)
+        Arr = Args()
+    End If
+
+    'LOOP
+    For i = lb To ub
+        S = Replace(S, "${" & (i - Reduce) & "}", Arr(i), , , vbTextCompare)
+    Next i
+
+    StringTemplate = S
 
 End Function
+
 ```
 
 >These are the ones I felt are easy for others to use as well, will plan on modifing some of my specific functions and add them once they are more distributable.
