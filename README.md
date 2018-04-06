@@ -17,7 +17,7 @@ Sub testingTemplateStrings()
     'Dictionaries are the best to use, since you can use the keys!! 
         dict("name") = "Robert"
         dict("age") = 29
-        Debug.Print StringTemplate("Hello, my name is ${name}\nand I am ${age} years old", d)
+        Debug.Print StringTemplate("Hello, my name is ${name}\nand I am ${age} years old", dict)
     
     'Collection example
         col.Add "Robert"
@@ -107,7 +107,7 @@ End Function
 >These are the ones I felt are easy for others to use as well, will plan on modifing some of my specific functions and add them once they are more distributable.
 
 Funtions:
-* myString - Allows putting variables in string. Makes for easy concatination.
+* StringTemplate - Allows putting variables in string. Makes for easy concatination.
 * CenterForm - Centers userforms to excel application. Helpful for multiple monitors.
 * ArrayPop - Removes last array element in single dim array. Returns popped element.
 * ArrayPush - Adds element to the end of a single dim array. Returns new lenght of array.
