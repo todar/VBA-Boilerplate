@@ -9,10 +9,11 @@ Example Funtion:
 '=========================================================================
 Sub testingTemplateStrings()
 
-    Dim S As New stringObject
-    Dim dict As New Dictionary
+    Dim dict As object
     Dim col As New Collection
     Dim arr As Variant
+    
+    Set dict = CreateObject("Scripting.Dictionary")
 
     'Dictionaries are the best to use, since you can use the keys!! 
         dict("name") = "Robert"
