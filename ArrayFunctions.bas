@@ -52,13 +52,13 @@ End Property
 'USED FOR TESTING NEW AND MODIFIED FUNCTIONS
 Public Sub TestingArrayFunctions()
 
-    Dim arr As Variant
+    Dim Arr As Variant
     Dim sql As String
     
     sql = "SELECT * FROM []"
     
-    arr = ArrayQuery(TestData, sql)
-    Debug.Print ArrayToString(arr)
+    Arr = ArrayQuery(TestData, sql)
+    Debug.Print ArrayToString(Arr)
     
 End Sub
 
@@ -68,11 +68,11 @@ End Sub
 '******************************************************************************************
 
 'LOOKS FOR VALUE IN FIRST ROW OF A TWO DIMENSIONAL ARRAY, RETURNS IT'S COL INDEX
-Public Function ArrayGetColumnNumber(arr As Variant, HeadingValue As String) As Integer
+Public Function ArrayGetColumnNumber(Arr As Variant, HeadingValue As String) As Integer
     
     Dim columnIndex As Integer
-    For columnIndex = LBound(arr, 2) To UBound(arr, 2)
-        If arr(LBound(arr, 1), columnIndex) = HeadingValue Then
+    For columnIndex = LBound(Arr, 2) To UBound(Arr, 2)
+        If Arr(LBound(Arr, 1), columnIndex) = HeadingValue Then
             ArrayGetColumnNumber = columnIndex
             Exit Function
         End If
@@ -82,6 +82,7 @@ Public Function ArrayGetColumnNumber(arr As Variant, HeadingValue As String) As 
     ArrayGetColumnNumber = -1
     
 End Function
+
 
 'CREATES TEMP TEXT FILE AND SAVES ARRAY VALUES IN A CSV FORMAT, THEN QUERIES AND RETURNS ARRAY.
 '
@@ -93,41 +94,41 @@ End Function
 '@PARAM {SQL} ADO SQL STATEMENT FOR A TEXT FILE. MUST INCLUDE 'FROM []'
 '@PARAM {IncludeHeaders} BOOLEAN TO RETURN HEADERS WITH DATA OR NOT
 '@EXAMPLE SQL = "SELECT * FROM [] WHERE [FIRSTNAME] = 'ROBERT'"
-Public Function ArrayQuery(arr As Variant, sql As String, Optional IncludeHeaders As Boolean = True) As Variant
+Public Function ArrayQuery(Arr As Variant, sql As String, Optional IncludeHeaders As Boolean = True) As Variant
     
     'CREATE TEMP FOLDER AND FILE NAMES
     Const fileName As String = "temp.txt"
-    Dim filePath As String
-    filePath = Environ("temp")
+    Dim FilePath As String
+    FilePath = Environ("temp")
     
     'UPDATE SQL WITH TEMP FILE NAME
     sql = Replace(sql, "FROM []", "FROM [" & fileName & "]")
     
     'SEND ARRAY TO TEMP TEXTFILE IN CSV FORMAT
-    ArrayToTextFile arr, filePath & "\" & fileName, ","
+    ArrayToTextFile Arr, FilePath & "\" & fileName, ","
     
     'CREATE CONNECTION TO TEMP FILE - CONNECTION IS SET TO COMMA SEPERATED FORMAT
     Dim cnn As Object
     Set cnn = CreateObject("ADODB.Connection")
     cnn.Provider = "Microsoft.Jet.OLEDB.4.0"
-    cnn.ConnectionString = "Data Source=" & filePath & ";" & "Extended Properties=""text;HDR=Yes;FMT=Delimited;"""
+    cnn.ConnectionString = "Data Source=" & FilePath & ";" & "Extended Properties=""text;HDR=Yes;FMT=Delimited;"""
     cnn.Open
     
     'CREATE RECORDSET AND QUERY ON PASSED IN SQL (QUERIES THE TEMP TEXT FILE)
-    Dim rs As Object
-    Set rs = CreateObject("ADODB.RecordSet")
-    With rs
+    Dim Rs As Object
+    Set Rs = CreateObject("ADODB.RecordSet")
+    With Rs
         .ActiveConnection = cnn
         .Open sql
         
         'GET AN ARRAY FROM THE RECORDSET
-         ArrayQuery = ArrayFromRecordset(rs, IncludeHeaders)
+         ArrayQuery = ArrayFromRecordset(Rs, IncludeHeaders)
         .Close
     End With
     
     'CLOSE CONNECTION AND KILL TEMP FILE
     cnn.Close
-    Kill filePath & "\" & fileName
+    Kill FilePath & "\" & fileName
     
 End Function
 
@@ -135,20 +136,20 @@ End Function
 'ORIGINAL OPTION BASE. (TRANSPOSE WILL SET IT TO BASE 1 AUTOMATICALLY.)
 '
 '@AUTHOR ROBERT TODAR
-Public Function ArrayFromRecordset(rs As Recordset, Optional IncludeHeaders As Boolean = True) As Variant
+Public Function ArrayFromRecordset(Rs As Recordset, Optional IncludeHeaders As Boolean = True) As Variant
     
     '@NOTE: -Int(IncludeHeaders) RETURNS A BOOLEAN TO AN INT (0 OR 1)
     Dim HeadingIncrement As Integer
     HeadingIncrement = -Int(IncludeHeaders)
     
     'CHECK TO MAKE SURE THERE ARE RECORDS TO PULL FROM
-    If rs.BOF Or rs.EOF Then
+    If Rs.BOF Or Rs.EOF Then
         Exit Function
     End If
     
     'STORE RS DATA
     Dim rsData As Variant
-    rsData = rs.GetRows
+    rsData = Rs.GetRows
     
     'REDIM TEMP TO ALLOW FOR HEADINGS AS WELL AS DATA
     Dim Temp As Variant
@@ -157,21 +158,21 @@ Public Function ArrayFromRecordset(rs As Recordset, Optional IncludeHeaders As B
     If IncludeHeaders = True Then
         'GET HEADERS
         Dim headerIndex As Long
-        For headerIndex = 0 To rs.fields.Count - 1
-            Temp(LBound(Temp, 1), headerIndex) = rs.fields(headerIndex).name
+        For headerIndex = 0 To Rs.fields.Count - 1
+            Temp(LBound(Temp, 1), headerIndex) = Rs.fields(headerIndex).Name
         Next headerIndex
     End If
     
     'GET DATA
-    Dim rowIndex As Long
-    Dim colIndex As Long
-    For rowIndex = LBound(Temp, 1) + HeadingIncrement To UBound(Temp, 1)
+    Dim RowIndex As Long
+    Dim ColIndex As Long
+    For RowIndex = LBound(Temp, 1) + HeadingIncrement To UBound(Temp, 1)
         
-        For colIndex = LBound(Temp, 2) To UBound(Temp, 2)
-            Temp(rowIndex, colIndex) = rsData(colIndex, rowIndex - HeadingIncrement)
-        Next colIndex
+        For ColIndex = LBound(Temp, 2) To UBound(Temp, 2)
+            Temp(RowIndex, ColIndex) = rsData(ColIndex, RowIndex - HeadingIncrement)
+        Next ColIndex
         
-    Next rowIndex
+    Next RowIndex
     
     'RETURN
     ArrayFromRecordset = Temp
@@ -192,22 +193,22 @@ Public Function ArrayToString(SourceArray As Variant, Optional Delimiter As Stri
         
         '2 DIMENSIONAL ARRAY
         Case 2
-            Dim rowIndex As Long
-            Dim colIndex As Long
+            Dim RowIndex As Long
+            Dim ColIndex As Long
             
             'LOOP EACH ROW IN MULTI ARRAY
-            For rowIndex = LBound(SourceArray, 1) To UBound(SourceArray, 1)
+            For RowIndex = LBound(SourceArray, 1) To UBound(SourceArray, 1)
                 
                 'LOOP EACH COLUMN ADDING VALUE TO STRING
-                For colIndex = LBound(SourceArray, 2) To UBound(SourceArray, 2)
-                    Temp = Temp & SourceArray(rowIndex, colIndex)
-                    If colIndex <> UBound(SourceArray, 2) Then Temp = Temp & Delimiter
-                Next colIndex
+                For ColIndex = LBound(SourceArray, 2) To UBound(SourceArray, 2)
+                    Temp = Temp & SourceArray(RowIndex, ColIndex)
+                    If ColIndex <> UBound(SourceArray, 2) Then Temp = Temp & Delimiter
+                Next ColIndex
                 
                 'ADD NEWLINE FOR THE NEXT ROW (MINUS LAST ROW)
-                If rowIndex <> UBound(SourceArray, 1) Then Temp = Temp & vbNewLine
+                If RowIndex <> UBound(SourceArray, 1) Then Temp = Temp & vbNewLine
         
-            Next rowIndex
+            Next RowIndex
     End Select
     
     ArrayToString = Temp
@@ -220,30 +221,80 @@ Public Function ArrayDimensionLength(SourceArray As Variant) As Integer
     Dim i As Integer
     Dim test As Long
 
-    On Error GoTo Catch
+    On Error GoTo catch
     Do
         i = i + 1
         test = UBound(SourceArray, i)
     Loop
     
-Catch:
+catch:
     ArrayDimensionLength = i - 1
 
 End Function
 
 'SENDS AN ARRAY TO A TEXTFILE
-Public Sub ArrayToTextFile(arr As Variant, filePath As String, Optional delimeter As String = ",")
+Public Sub ArrayToTextFile(Arr As Variant, FilePath As String, Optional delimeter As String = ",")
     
-    Dim fso As Object
+    Dim Fso As Object
+    Set Fso = CreateObject("Scripting.FileSystemObject")
+    
     Dim ts As Object
+    Set ts = Fso.OpenTextFile(FilePath, 2, True) '2=WRITEABLE
+    ts.Write ArrayToCSV(Arr)
     
-    Set fso = CreateObject("Scripting.FileSystemObject")
-    Set ts = fso.OpenTextFile(filePath, 2, True) '2=WRITEABLE
-   
-    ts.Write ArrayToString(arr, delimeter)
     Set ts = Nothing
+    Set Fso = Nothing
 
 End Sub
+
+
+Public Function ArrayToCSV(SourceArray As Variant) As String
+    
+    Dim Temp As String
+    Const Delimiter = ","
+    
+    Select Case ArrayDimensionLength(SourceArray)
+        'SINGLE DIMENTIONAL ARRAY
+        Case 1
+            Dim Index As Integer
+            For Index = LBound(SourceArray, 1) To UBound(SourceArray, 1)
+                
+                If IsNumeric(SourceArray(Index)) Then
+                    Temp = Temp & SourceArray(Index)
+                Else
+                    Temp = Temp & """" & SourceArray(Index) & """"
+                End If
+            Next Index
+            
+        
+        '2 DIMENSIONAL ARRAY
+        Case 2
+            Dim RowIndex As Long
+            Dim ColIndex As Long
+            
+            'LOOP EACH ROW IN MULTI ARRAY
+            For RowIndex = LBound(SourceArray, 1) To UBound(SourceArray, 1)
+                
+                'LOOP EACH COLUMN ADDING VALUE TO STRING
+                For ColIndex = LBound(SourceArray, 2) To UBound(SourceArray, 2)
+                    If IsNumeric(SourceArray(RowIndex, ColIndex)) Then
+                        Temp = Temp & SourceArray(RowIndex, ColIndex)
+                    Else
+                        Temp = Temp & """" & SourceArray(RowIndex, ColIndex) & """"
+                    End If
+                    
+                    If ColIndex <> UBound(SourceArray, 2) Then Temp = Temp & Delimiter
+                Next ColIndex
+                
+                'ADD NEWLINE FOR THE NEXT ROW (MINUS LAST ROW)
+                If RowIndex <> UBound(SourceArray, 1) Then Temp = Temp & vbNewLine
+        
+            Next RowIndex
+    End Select
+    
+    ArrayToCSV = Temp
+    
+End Function
 
 
 '******************************************************************************************
@@ -252,20 +303,20 @@ End Sub
 
 Private Sub TestArrayPush()
     
-    Dim arr As Variant
+    Dim Arr As Variant
     
-    ArrayPush arr, 1, 2, 3, 4, 5
-    ArrayPush arr, 6, 7, 8
+    ArrayPush Arr, 1, 2, 3, 4, 5
+    ArrayPush Arr, 6, 7, 8
     
-    Debug.Print ArrayToString(arr)
+    Debug.Print ArrayToString(Arr)
 
 End Sub
 
 ' - ADDS A NEW ELEMENT(S) TO AN ARRAY (AT THE END), RETURNS THE NEW ARRAY LENGTH
 Private Function ArrayPush(SourceArray As Variant, ParamArray Element() As Variant) As Long
 
-    Dim index As Long
-    Dim firstEmptyBound As Long
+    Dim Index As Long
+    Dim FirstEmptyBound As Long
     Dim OptionBase As Integer
     
     OptionBase = 0
@@ -280,39 +331,72 @@ Private Function ArrayPush(SourceArray As Variant, ParamArray Element() As Varia
     If IsArrayEmpty(SourceArray) Then
     
         ReDim SourceArray(OptionBase To UBound(Element, 1) + OptionBase)
-        firstEmptyBound = LBound(SourceArray, 1)
+        FirstEmptyBound = LBound(SourceArray, 1)
         
     Else
-        firstEmptyBound = UBound(SourceArray, 1) + 1
+        FirstEmptyBound = UBound(SourceArray, 1) + 1
         ReDim Preserve SourceArray(UBound(SourceArray, 1) + UBound(Element, 1) + 1)
         
     End If
     
     'LOOP EACH NEW ELEMENT
-    For index = LBound(Element, 1) To UBound(Element, 1)
+    For Index = LBound(Element, 1) To UBound(Element, 1)
         
         'ADD ELEMENT TO THE END OF THE ARRAY
-        asign SourceArray(firstEmptyBound), Element(index)
+        Asign SourceArray(FirstEmptyBound), Element(Index)
         
         'INCREMENT TO THE NEXT firstEmptyBound
-        firstEmptyBound = firstEmptyBound + 1
+        FirstEmptyBound = FirstEmptyBound + 1
         
-    Next index
+    Next Index
     
     'RETURN NEW ARRAY LENGTH
     ArrayPush = UBound(SourceArray, 1) + 1
 
 End Function
 
-' - QUICK TOOL TO EITHER SET OR LET DEPENDING ON IF ELEMENT IS AN OBJECT
-Private Function asign(variable As Variant, value As Variant)
+'==================================================
+' CONVERT TO ARRAY
+'==================================================
+Public Function ConvertToArray(val As Variant) As Variant
+    
+    Select Case TypeName(val)
+    
+        Case "Collection":
+            Dim Index As Integer
+            For Index = 1 To val.Count
+                ArrayPush cArray, val(Index)
+            Next Index
+        
+        Case "Dictionary":
+            cArray = val.items()
+        
+        Case Else
+             
+            If IsArray(val) Then
+                cArray = val
+            Else
+                ArrayPush cArray, val
+            End If
+            
+    End Select
+    
+End Function
 
-    If IsObject(value) Then
-        Set variable = value
+
+' - QUICK TOOL TO EITHER SET OR LET DEPENDING ON IF ELEMENT IS AN OBJECT
+Private Function Asign(variable As Variant, Value As Variant)
+
+    If IsObject(Value) Then
+        Set variable = Value
     Else
-        Let variable = value
+        Let variable = Value
     End If
     
 End Function
+
+
+
+
 
 
