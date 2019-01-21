@@ -148,3 +148,4 @@ Funtions:
 * ProperLength - Ensures lenght of string is as long as you set it to be. Will add fill value at begining or end based on parameters.
 * String between - Find the value between two words in a string.
 * TextboxWordSelect - Selects text in a textbox in a userform.
+* StringSimilarity - Compares two strings and returns a percentage of how similar they are. Uses the Levenshtein formula.
