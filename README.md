@@ -1,8 +1,30 @@
 # VBA-Functions
 Functions I have created that could be helpful for others to use. 
 
-Example Funtion:
-
+Example Single Dim Array functions
+```VB
+Private Sub ArrayFunctionExamples()
+    
+    Dim A As Variant
+    
+    'SINGLE DIM FUNCTIONS
+    ArrayPush A, "Banana", "Apple", "Carrot" '--> Banana,Apple,Carrot
+    ArrayPop A                               '--> Banana,Apple --> returns Carrot
+    ArrayUnShift A, "Mango", "Orange"        '--> Mango,Orange,Banana,Apple
+    ArrayShift A                             '--> Orange,Banana,Apple
+    ArraySplice A, 2, 0, "Coffee"            '--> Orange,Banana,Coffee,Apple
+    ArraySplice A, 0, 1, "Mango", "Coffee"   '--> Mango,Coffee,Banana,Coffee,Apple
+    ArrayRemoveDuplicates A                  '--> Mango,Coffee,Banana,Apple
+    ArraySort A                              '--> Apple,Banana,Coffee,Mango
+    ArrayReverse A                           '--> Mango,Coffee,Banana,Apple
+    ArrayIndexOf A, "Coffee"                 '--> 1
+    ArrayIncludes A, "Banana"                '--> True
+    
+    Debug.Print ArrayToString(A)
+    
+End Sub
+```
+Example String Funtion:
 ```VB
 Private Sub ExamplesOfStringInterpolation()
 
@@ -28,8 +50,8 @@ Private Sub ExamplesOfStringInterpolation()
     Debug.Print StringInterpolation("Hello, my name is ${0} and I am ${1} years old", "Robert", 29)
     
 End Sub
-
-
+```
+```vb
 Public Function StringInterpolation(ByRef Source As String, ParamArray Args() As Variant) As String
     
     '@AUTHOR: ROBERT TODAR
@@ -96,6 +118,23 @@ Funtions:
 * ArrayPush - Adds element to the end of a single dim array. Returns new lenght of array.
 * ArrayShift - Removes element from the start of a single dim array. Retrurns removed element.
 * ArrayUnShift - Adds element to the start of an array, returns array lenght.
+* ArrayQuery - Query a 2 dim array using ado and Microsoft.Jet. Saves array as csv to textfile. Really helpful!!
+* ArrayDimensionLength
+* ArrayExtract
+* ArrayFromRecordset - Used with ArrayQuery. Also helpful to get full array from and Ado recorsets.
+* ArrayGetColumnNumber
+* ArrayIncludes
+* ArrayIndexOf
+* ArrayRemoveDuplicates
+* ArrayReverse
+* ArraySort
+* ArraySplice
+* ArrayToCSVFile
+* ArrayToRange
+* ArrayToString
+* ArrayToTextFile
+* ArrayTranspose
+* ConvertToArray
 * CollectionAddUniue - Adds to a collection if the string value is unique.
 * ClipboardSet - Takes a string and puts it into the clipboard.
 * ClipboardGet - Gets text from clipboard and sets it to a string value.
