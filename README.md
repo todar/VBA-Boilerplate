@@ -65,7 +65,9 @@ Public Function StringInterpolation(ByRef Source As String, ParamArray Args() As
         .Global = True
         .Pattern = "(^|[^\\])\\n"
         Source = .Replace(Source, "$1" & vbNewLine)
+        Source = .Replace(Source, "$1" & vbNewLine)
         .Pattern = "(^|[^\\])\\t"
+        Source = regEx.Replace(Source, "$1" & vbTab)
         Source = regEx.Replace(Source, "$1" & vbTab)
     End With
     
