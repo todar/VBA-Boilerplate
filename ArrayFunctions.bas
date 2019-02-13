@@ -72,6 +72,74 @@ Private Sub ArrayFunctionExamples()
 End Sub
 
 
+Private Sub Test()
+    
+    Dim Arr As Variant
+    Arr = Array(0, 1, 2, Array(3, 4, 5), Array(6, 7, Array(8, 9, Array(10, 11, 12, 13, Array(14, 15, 16)))))
+
+    Arr = ArraySpread(Arr)
+    
+    'Arr = Array(25, 100, 100)
+    
+    Debug.Print ArraySum(Arr)
+    
+    
+    
+End Sub
+
+
+'TESTING
+Public Function ArraySum(SourceArray As Variant) As Double
+    
+    Dim Index As Integer
+    For Index = LBound(SourceArray, 1) To UBound(SourceArray, 1)
+        If Not IsNumeric(SourceArray(Index)) Then
+            Err.Raise 55, "ArrayFunctions: ArraySum", SourceArray(Index) & vbNewLine & "^ Element in Array is not numeric"
+        End If
+        
+        ArraySum = ArraySum + SourceArray(Index)
+    Next Index
+    
+End Function
+
+Public Function ArrayAverage(SourceArray As Variant) As Double
+
+    ArrayAverage = ArraySum(SourceArray) / ArrayLength(SourceArray)
+    
+End Function
+
+Public Function ArrayLength(SourceArray As Variant) As Integer
+    ArrayLength = (UBound(SourceArray, 1) - LBound(SourceArray, 1)) + 1
+End Function
+
+
+'SPREADS OUT AN ARRAY INTO A SINGLE ARRAY. EXAMPLE: JAGGED ARRAYS.
+'@TODO: PLAN ON GETTING FROM COLLECTIONS AND DICTIONARIES AS WELL.
+Public Function ArraySpread(SourceArray As Variant) As Variant
+    
+    Dim Index As Integer
+    For Index = LBound(SourceArray, 1) To UBound(SourceArray, 1)
+        If IsArray(SourceArray(Index)) Then
+        
+            Dim Temp As Variant
+            Temp = ArraySpread(SourceArray(Index))
+        
+            Dim InnerIndex As Integer
+            For InnerIndex = LBound(Temp, 1) To UBound(Temp, 1)
+                ArrayPush ArraySpread, Temp(InnerIndex)
+            Next InnerIndex
+            
+        Else
+        
+            ArrayPush ArraySpread, SourceArray(Index)
+            
+        End If
+        
+    Next Index
+    
+End Function
+
+
 '******************************************************************************************
 ' PUBLIC FUNCTIONS
 '******************************************************************************************
@@ -79,7 +147,7 @@ End Sub
 ' RETURNS THE LENGHT OF THE DIMENSION OF AN ARRAY
 Public Function ArrayDimensionLength(SourceArray As Variant) As Integer
     
-    On Error GoTo Catch
+    On Error GoTo CATCH
     
     Dim I As Integer
     Dim Test As Integer
@@ -91,7 +159,7 @@ Public Function ArrayDimensionLength(SourceArray As Variant) As Integer
         Test = UBound(SourceArray, I)
     Loop
     
-Catch:
+CATCH:
     ArrayDimensionLength = I - 1
 
 End Function
@@ -203,6 +271,21 @@ Public Function ArrayIndexOf(SourceArray As Variant, SearchElement As Variant) A
     Index = -1
 End Function
 
+' EXTRACTS LIST OF GIVEN PROPERTY. ARRAY THAT CONTAINS DICTIONRIES.
+Public Function ArrayPluck(SourceArray As Variant, ByVal Key As Variant) As Variant
+    
+    Dim Temp As Variant
+    ReDim Temp(LBound(SourceArray, 1) To UBound(SourceArray, 1))
+    
+    Dim Index As Integer
+    For Index = LBound(SourceArray, 1) To UBound(SourceArray, 1)
+        Asign Temp(Index), SourceArray(Index)(Key)
+    Next Index
+
+    ArrayPluck = Temp
+    
+End Function
+
 ' REMOVES LAST ELEMENT IN ARRAY, RETURNS POPPED ELEMENT
 Public Function ArrayPop(ByRef SourceArray As Variant) As Variant
     
@@ -288,7 +371,7 @@ End Function
 '@PARAM {SQL} ADO SQL STATEMENT FOR A TEXT FILE. MUST INCLUDE 'FROM []'
 '@PARAM {IncludeHeaders} BOOLEAN TO RETURN HEADERS WITH DATA OR NOT
 '@EXAMPLE SQL = "SELECT * FROM [] WHERE [FIRSTNAME] = 'ROBERT'"
-Public Function ArrayQuery(SourceArray As Variant, SQL As String, Optional IncludeHeaders As Boolean = True) As Variant
+Public Function ArrayQuery(SourceArray As Variant, Sql As String, Optional IncludeHeaders As Boolean = True) As Variant
     
     'CREATE TEMP FOLDER AND FILE NAMES
     Const FileName As String = "temp.txt"
@@ -296,7 +379,7 @@ Public Function ArrayQuery(SourceArray As Variant, SQL As String, Optional Inclu
     FilePath = Environ("temp")
     
     'UPDATE SQL WITH TEMP FILE NAME
-    SQL = Replace(SQL, "FROM []", "FROM [" & FileName & "]")
+    Sql = Replace(Sql, "FROM []", "FROM [" & FileName & "]")
     
     'SEND ARRAY TO TEMP TEXTFILE IN CSV FORMAT
     ArrayToCSVFile SourceArray, FilePath & "\" & FileName
@@ -313,7 +396,7 @@ Public Function ArrayQuery(SourceArray As Variant, SQL As String, Optional Inclu
     Set Rs = CreateObject("ADODB.RecordSet")
     With Rs
         .ActiveConnection = cnn
-        .Open SQL
+        .Open Sql
         
         'GET AN ARRAY FROM THE RECORDSET
          ArrayQuery = ArrayFromRecordset(Rs, IncludeHeaders)
@@ -530,7 +613,7 @@ Public Function ArrayToCSVFile(SourceArray As Variant, FilePath As String) As St
     Set ts = Nothing
     Set FSO = Nothing
     
-    ArrayToCSV = Temp
+    ArrayToCSVFile = Temp
     
 End Function
 
@@ -726,8 +809,8 @@ Public Function IsArrayEmpty(Arr As Variant) As Boolean
 
     ' Attempt to get the UBound of the array. If the array is
     ' unallocated, an error will occur.
-    Dim UB As Long
-    UB = UBound(Arr, 1)
+    Dim ub As Long
+    ub = UBound(Arr, 1)
     If (Err.Number <> 0) Then
         IsArrayEmpty = True
     Else
@@ -740,7 +823,7 @@ Public Function IsArrayEmpty(Arr As Variant) As Boolean
         Err.Clear
         Dim LB As Long
         LB = LBound(Arr)
-        If LB > UB Then
+        If LB > ub Then
             IsArrayEmpty = True
         Else
             IsArrayEmpty = False
@@ -755,7 +838,7 @@ End Function
 '******************************************************************************************
 
 ' - QUICK TOOL TO EITHER SET OR LET DEPENDING ON IF ELEMENT IS AN OBJECT
-Private Function Asign(variable As Variant, Value As Variant)
+Public Function Asign(variable As Variant, Value As Variant)
 
     If IsObject(Value) Then
         Set variable = Value
