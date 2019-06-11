@@ -60,13 +60,13 @@ Notes should be clear and full sentences. Explain anything that doesn't immediat
 ## Arrays
 
 Example Single Dim Array functions
-```VB
+```vb
+'EXAMPLES OF VARIOUS FUNCTIONS
 Private Sub ArrayFunctionExamples()
     
-    'keeping this variable name short for easy reading...
     Dim A As Variant
     
-    'SINGLE DIM FUNCTIONS
+    'SINGLE DIM FUNCTIONS TO MANIPULATE
     ArrayPush A, "Banana", "Apple", "Carrot" '--> Banana,Apple,Carrot
     ArrayPop A                               '--> Banana,Apple --> returns Carrot
     ArrayUnShift A, "Mango", "Orange"        '--> Mango,Orange,Banana,Apple
@@ -76,9 +76,29 @@ Private Sub ArrayFunctionExamples()
     ArrayRemoveDuplicates A                  '--> Mango,Coffee,Banana,Apple
     ArraySort A                              '--> Apple,Banana,Coffee,Mango
     ArrayReverse A                           '--> Mango,Coffee,Banana,Apple
+    
+    'ARRAY PROPERTIES
+    ArrayLength A                            '--> 4
     ArrayIndexOf A, "Coffee"                 '--> 1
     ArrayIncludes A, "Banana"                '--> True
+    ArrayContains A, Array("Test", "Banana") '--> True
+    ArrayContainsEmpties A                   '--> False
+    ArrayDimensionLength A                   '--> 1 (single dim array)
+    IsArrayEmpty A                           '--> False
     
+    'CAN FLATTEN JAGGED ARRAY WITH SPREAD FORMULA
+    A = Array(1, 2, 3, Array(4, 5, 6, Array(7, 8, 9))) 'COULD ALSO SPREAD DICTIONAIRES AND COLLECTIONS AS WELL
+    A = ArraySpread(A)                       '--> 1,2,3,4,5,6,7,8,9
+    
+    'MATH EXAMPLES
+    ArraySum A                               '--> 45
+    ArrayAverage A                           '--> 5
+    
+    'FILTER USE'S REGEX PATTERN
+    A = Array("Banana", "Coffee", "Apple", "Carrot", "Canolope")
+    A = ArrayFilter(A, "^Ca|^Ap")
+    
+    'ARRAY TO STRING WORKS WITH BOTH SINGLE AND DOUBLE DIM ARRAYS!
     Debug.Print ArrayToString(A)
     
 End Sub
@@ -86,30 +106,29 @@ End Sub
 
 ## Strings
 
-```VB
-Private Sub ExamplesOfStringInterpolation()
-
-    'Dictionaries are the best to use, since you can use the keys!!
-    Dim Dict As Object
-    Set Dict = CreateObject("Scripting.Dictionary")
-    Dict("name") = "Robert"
-    Dict("age") = 29
-    Debug.Print StringInterpolation("Hello, my name is ${name}\nand I am ${age} years old", Dict)
+```vb
+Private Sub StringFunctionExamples()
     
-    'Collection example
-    Dim Col As New Collection
-    Col.Add "Robert"
-    Col.Add 29
-    Debug.Print StringInterpolation("Hello, my name is ${0} and I am ${1} years old", Col)
+    StringSimilarity "Test", "Tester"        '->  66.6666666666667
+    LevenshteinDistance "Test", "Tester"     '->  2
+    StringInterpolation "${0}\n\t${1}", "First", "Tab and Second" '-> First
+                                                                  '->   Tab and Second
+                                                                  
+    Truncate "This is a long sentence", 10                '-> "This is..."
+    StringBetween "Robert Paul Todar", "Robert", "Todar"  '-> "Paul"
+    StringProperLength "1001", 6, "0", True               '-> "100100"
     
-    'Array example
-    Dim Arr As Variant
-    Arr = Array("Robert", 29)
-    Debug.Print StringInterpolation("Hello, my name is ${0} and I am ${1} years old", Arr)
-   
-    'Passing Variables into the parameters (A cool and fast way of doing it!)
-    Debug.Print StringInterpolation("Hello, my name is ${0} and I am ${1} years old", "Robert", 29)
     
+    'Inject is a copy of StringInterpolation, this alias is easier to remember (shorter too!)
+    'Here is an example using a dictionary!
+    Dim Person As New Scripting.Dictionary
+    Person("Name") = "Robert"
+    Person("Age") = 30
+    
+    'REMEMBER, DICTIONARY KEYS ARE CASE SENSITIVE!
+    Debug.Print Inject("Hello,\nMy name is ${Name} and I am ${Age}!", Person)
+        '-> Hello,
+        '-> My name is Robert and I am 30!
 End Sub
 ```
 
