@@ -1,10 +1,19 @@
-<h1 align="center">VBA Function Library</h1>
+<p align="center">
+    <img width="200px" alt="function meme" src="https://i.pinimg.com/736x/2e/e7/b3/2ee7b37349f798c3460e244143bdd0bc--math-puns-math-humor.jpg">
+    <h1 align="center">VBA Function Library</h1>
+</p>
 
----
+You've found my VBA Libray GitHub repository, which contains functions to help programming in VBA easier.
 
-You found a repository that is created for storing helpful functions for VBA.
+This repository is currently under construction, but will be intended to be a place to help make VBA more open source.
 
-## Examples
+## Index
+
+1. [Array Examples](#arrays)
+2. [String Examples](#strings)
+
+## Arrays
+
 Example Single Dim Array functions
 ```VB
 Private Sub ArrayFunctionExamples()
@@ -29,7 +38,8 @@ Private Sub ArrayFunctionExamples()
 End Sub
 ```
 
-Example String Funtion:
+## Strings
+
 ```VB
 Private Sub ExamplesOfStringInterpolation()
 
