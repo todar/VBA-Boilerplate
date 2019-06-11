@@ -70,7 +70,6 @@ You've found my VBA Libray GitHub repository, which contains functions as well a
 
   <a name="pascal--case"></a><a name="1.2"></a>
   - [1.2](#pascal--case) Use PascalCase for all your naming.
-
     ```vb
     ' good
     Function GreetUser ()
@@ -82,7 +81,6 @@ You've found my VBA Libray GitHub repository, which contains functions as well a
   - [1.3](#underscore--case) Do not use underscore case.
     
     > Why? VBA uses underscores for pointing out events and implementation. Adding underscores not only makes it confusing, but can also lead to bugs.
-
     ```vb
     ' bad
     Dim First_Name as String
