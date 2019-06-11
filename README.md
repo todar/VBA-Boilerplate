@@ -27,20 +27,20 @@ You've found my VBA Libray GitHub repository, which contains functions as well a
   'A simple Dictionary Factory.
   Private Function ToDictionary(ParamArray keyValuePairs() As Variant) As Scripting.Dictionary
       
-      '@author: Robert Todar <robert@roberttodar.com>
-      '@ref: MicroSoft Scripting Runtime
-      '@example: ToDictionary("Name", "Robert", "Age", 30) '--> { "Name": "Robert, "Age": 30 }
+      ' @author: Robert Todar <robert@roberttodar.com>
+      ' @ref: MicroSoft Scripting Runtime
+      ' @example: ToDictionary("Name", "Robert", "Age", 30) '--> { "Name": "Robert, "Age": 30 }
       
-      'Get length of array to check to see if there are valid parameters.
+      ' Get length of array to check to see if there are valid parameters.
       Dim ArrayLenght As Long
       ArrayLenght = UBound(keyValuePairs) - LBound(keyValuePairs) + 1
       
-      'Check to see that key/value pairs passed in (an even number).
+      ' Check to see that key/value pairs passed in (an even number).
       If ArrayLenght Mod 2 <> 0 Then
           Err.Raise 5, "ToDictionary", "Invalid parameters: expecting key/value pairs, but received an odd number of arguments."
       End If
       
-      'Add key values to the return Dictionary.
+      ' Add key values to the return Dictionary.
       Set ToDictionary = New Scripting.Dictionary
       Dim Index As Long
       For Index = LBound(keyValuePairs) To UBound(keyValuePairs) Step 2
