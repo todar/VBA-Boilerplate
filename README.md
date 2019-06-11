@@ -9,8 +9,53 @@ This repository is currently under construction, but will be intended to be a pl
 
 ## Index
 
-1. [Array Examples](#arrays)
-2. [String Examples](#strings)
+1. [Style Guide](#style-guide)
+2. [Array Examples](#arrays)
+3. [String Examples](#strings)
+
+## Style Guide
+
+Below is an example of how I entend all my code to be written. 
+
+If you'd like to contribute please try to format similar to this for consistency.
+
+```vb
+'A simple Dictionary Factory.
+Private Function ToDictionary(ParamArray keyValuePairs() As Variant) As Scripting.Dictionary
+    
+    '@author: Robert Todar <robert@roberttodar.com>
+    '@ref: MicroSoft Scripting Runtime
+    '@example: ToDictionary("Name", "Robert", "Age", 30) '--> { "Name": "Robert, "Age": 30 }
+    
+    'Get length of array to check to see if there are valid parameters.
+    Dim ArrayLenght As Long
+    ArrayLenght = UBound(keyValuePairs) - LBound(keyValuePairs) + 1
+    
+    'Check to see that key/value pairs passed in (an even number).
+    If ArrayLenght Mod 2 <> 0 Then
+        Err.Raise 5, "ToDictionary", "Invalid parameters: expecting key/value pairs, but received an odd number of arguments."
+    End If
+    
+    'Add key values to the return Dictionary.
+    Set ToDictionary = New Scripting.Dictionary
+    Dim Index As Long
+    For Index = LBound(keyValuePairs) To UBound(keyValuePairs) Step 2
+        ToDictionary.Add keyValuePairs(Index), keyValuePairs(Index + 1)
+    Next Index
+    
+End Function
+```
+
+Above the function should be a simple description of what the function does.
+
+Function names and parameters should be **descripitive** and can be long if needed. **Use action word**s.
+
+Just inside the function is where I will put important details. This could be author, library references, notes, Ect. I've styled this to be similar to [JSDoc documentation](https://devdocs.io/jsdoc/). 
+
+Functions should be as small as possible designed to resusable. This means they should be very readable.
+
+Notes should be clear and full sentences. Explain anything that doesn't immediatly make sence from the code.
+
 
 ## Arrays
 
@@ -18,6 +63,7 @@ Example Single Dim Array functions
 ```VB
 Private Sub ArrayFunctionExamples()
     
+    'keeping this variable name short for easy reading...
     Dim A As Variant
     
     'SINGLE DIM FUNCTIONS
