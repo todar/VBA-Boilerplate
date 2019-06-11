@@ -7,11 +7,15 @@ You've found my VBA Libray GitHub repository, which contains functions to help p
 
 This repository is currently under construction, but will be intended to be a place to help make VBA more open source.
 
+----
+
 ## Index
 
 1. [Style Guide](#style-guide)
-2. [Array Examples](#arrays)
-3. [String Examples](#strings)
+2. [Array Examples](#array-functions)
+3. [String Examples](#string-functions)
+
+----
 
 ## Style Guide
 
@@ -64,9 +68,10 @@ Functions should be as small as possible designed to resusable. This means they 
 
 Declarations should be made where the variables are needed. Notice `Dim Index as Long` is declared right before the loop. This makes it easier to read, debug, and refactor if need be.
 
-## Arrays
+----
 
-Example Single Dim Array functions
+## Array Functions
+
 ```vb
 'EXAMPLES OF VARIOUS FUNCTIONS
 Private Sub ArrayFunctionExamples()
@@ -110,8 +115,9 @@ Private Sub ArrayFunctionExamples()
     
 End Sub
 ```
+----
 
-## Strings
+## String Functions
 
 ```vb
 Private Sub StringFunctionExamples()
