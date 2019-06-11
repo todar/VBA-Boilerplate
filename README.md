@@ -46,16 +46,23 @@ Private Function ToDictionary(ParamArray keyValuePairs() As Variant) As Scriptin
 End Function
 ```
 
-Above the function should be a simple description of what the function does.
+### Naming Conventions
 
 Function names and parameters should be **descripitive** and can be long if needed. **Use action word**s.
 
-Just inside the function is where I will put important details. This could be author, library references, notes, Ect. I've styled this to be similar to [JSDoc documentation](https://devdocs.io/jsdoc/). 
+### Comments
 
-Functions should be as small as possible designed to resusable. This means they should be very readable.
+Above the function should be a simple description of what the function does.
+
+Just inside the function is where I will put important details. This could be author, library references, notes, Ect. I've styled this to be similar to [JSDoc documentation](https://devdocs.io/jsdoc/). 
 
 Notes should be clear and full sentences. Explain anything that doesn't immediatly make sence from the code.
 
+### Design
+
+Functions should be as small as possible designed to resusable. This means they should be very readable.
+
+Declarations should be made where the variables are needed. Notice `Dim Index as Long` is declared right before the loop. This makes it easier to read, debug, and refactor if need be.
 
 ## Arrays
 
@@ -117,7 +124,7 @@ Private Sub StringFunctionExamples()
     StringProperLength "1001", 6, "0", True               '-> "100100"
     
     'Inject is a copy of StringInterpolation
-     Inject "${0}\n\t${1}", "First", "Tab and Second" '-> First
+    Inject "${0}\n\t${1}", "First", "Tab and Second" '-> First
                                                       '->   Tab and Second
     
     'Here is an example using a dictionary!
