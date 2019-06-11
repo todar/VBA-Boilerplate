@@ -54,7 +54,6 @@ You've found my VBA Libray GitHub repository, which contains functions as well a
 
   <a name="single--letter--names"></a><a name="1.1"></a>
   - [1.1](#single--letter--names) Avoid single letter names. Be descriptive with your naming.
-
     ```vb
     ' bad
     Function Q ()
