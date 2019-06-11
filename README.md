@@ -112,69 +112,11 @@ Private Sub ExamplesOfStringInterpolation()
     
 End Sub
 ```
-```vb
-Public Function StringInterpolation(ByRef Source As String, ParamArray Args() As Variant) As String
-    
-    '@AUTHOR: ROBERT TODAR
-    '@REQUIRED: REFERENCE TO MICROSOFT SCRIPTING RUNTIME (SCRIPTING.DICTIONARY)
-    '@EXAMPLE: StringInterpolation("${0}\n\t${1}", "First Line", "Tab and Second Line")
-    
-    'USE REGULAR EXPRESSION REPLACE SPECIAL CHARATERS (NEWLINE, TAB)
-    Dim regEx As Object
-    Set regEx = CreateObject("VBScript.RegExp")
-    With regEx
-        .Global = True
-        .Pattern = "(^|[^\\])\\n"
-        Source = .Replace(Source, "$1" & vbNewLine)
-        Source = .Replace(Source, "$1" & vbNewLine)
-        .Pattern = "(^|[^\\])\\t"
-        Source = regEx.Replace(Source, "$1" & vbTab)
-        Source = regEx.Replace(Source, "$1" & vbTab)
-    End With
-    
-    'REPLACE ${#} WITH VALUES STORED IN VARIABLE.
-    Dim Index As Integer
-    Select Case True
-    
-        Case TypeName(Args(0)) = "Dictionary":
-            
-            Dim Dict As Scripting.Dictionary
-            Set Dict = Args(0)
-            For Index = 0 To Dict.Count - 1
-                Source = Replace(Source, "${" & Dict.Keys(Index) & "}", Dict.Items(Index), , , vbTextCompare)
-            Next Index
-            
-        Case TypeName(Args(0)) = "Collection":
-            Dim Col As Collection
-            Set Col = Args(0)
-            For Index = 1 To Col.Count
-                Source = Replace(Source, "${" & Index - 1 & "}", Col(Index), , , vbTextCompare)
-            Next Index
-            
-        Case Else:
-        
-            Dim Arr As Variant
-            If IsArray(Args(0)) Then
-                Arr = Args(0)
-            Else
-                Arr = Args
-            End If
-            
-            For Index = LBound(Arr, 1) To UBound(Arr, 1)
-                Source = Replace(Source, "${" & Index & "}", Arr(Index), , , vbTextCompare)
-            Next Index
-            
-    End Select
-    
-    StringInterpolation = Source
 
-End Function
-
-```
+## List of Functions
 
 >These are the ones I felt are easy for others to use as well, will plan on modifing some of my specific functions and add them once they are more distributable.
 
-Funtions:
 * StringInterpolation - Allows putting variables in string. Makes for easy concatination.
 * CenterForm - Centers userforms to excel application. Helpful for multiple monitors.
 * ArrayPop - Removes last array element in single dim array. Returns popped element.
