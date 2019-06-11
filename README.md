@@ -111,15 +111,15 @@ Private Sub StringFunctionExamples()
     
     StringSimilarity "Test", "Tester"        '->  66.6666666666667
     LevenshteinDistance "Test", "Tester"     '->  2
-    StringInterpolation "${0}\n\t${1}", "First", "Tab and Second" '-> First
-                                                                  '->   Tab and Second
-                                                                  
+                                                      
     Truncate "This is a long sentence", 10                '-> "This is..."
     StringBetween "Robert Paul Todar", "Robert", "Todar"  '-> "Paul"
     StringProperLength "1001", 6, "0", True               '-> "100100"
     
+    'Inject is a copy of StringInterpolation
+     Inject "${0}\n\t${1}", "First", "Tab and Second" '-> First
+                                                      '->   Tab and Second
     
-    'Inject is a copy of StringInterpolation, this alias is easier to remember (shorter too!)
     'Here is an example using a dictionary!
     Dim Person As New Scripting.Dictionary
     Person("Name") = "Robert"
@@ -136,7 +136,7 @@ End Sub
 
 >These are the ones I felt are easy for others to use as well, will plan on modifing some of my specific functions and add them once they are more distributable.
 
-* StringInterpolation - Allows putting variables in string. Makes for easy concatination.
+* Inject - Allows putting variables in string. Makes for easy concatination.
 * CenterForm - Centers userforms to excel application. Helpful for multiple monitors.
 * ArrayPop - Removes last array element in single dim array. Returns popped element.
 * ArrayPush - Adds element to the end of a single dim array. Returns new lenght of array.
