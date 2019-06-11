@@ -1,6 +1,10 @@
-# VBA-Functions
-Functions I have created that could be helpful for others to use. 
+<h1 align="center">VBA Function Library</h1>
 
+---
+
+You found a repository that is created for storing helpful functions for VBA.
+
+## Examples
 Example Single Dim Array functions
 ```VB
 Private Sub ArrayFunctionExamples()
@@ -24,6 +28,7 @@ Private Sub ArrayFunctionExamples()
     
 End Sub
 ```
+
 Example String Funtion:
 ```VB
 Private Sub ExamplesOfStringInterpolation()
