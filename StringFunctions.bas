@@ -1,84 +1,160 @@
 Attribute VB_Name = "stringFunctions"
 Option Explicit
-Option Private Module
 Option Compare Text
+Option Private Module
+
+'@Author: Robert Todar <robert@roberttodar.com>
+'@Licence: MIT
+
+'DEPENDENCIES
+' - REFERENCE TO SCRIPTING RUNTIME FOR Scripting.Dictionary
+
+'PUBLIC FUNCTIONS
+' - StringSimilarity
+' - LevenshteinDistance
+' - StringInterpolation (also under alias Inject)
+' - Truncate
+' - StringBetween
+' - StringProperLength
+
+'NOTES:
+'TODO:
+
+'EXAMPLES OF ALL THE FUNCTIONS
+Private Sub StringFunctionExamples()
+    
+    '@AUTHOR: ROBERT TODAR
+    
+    StringSimilarity "Test", "Tester"        '->  66.6666666666667
+    LevenshteinDistance "Test", "Tester"     '->  2
+    StringInterpolation "${0}\n\t${1}", "First", "Tab and Second" '-> First
+                                                                  '->   Tab and Second
+                                                                  
+    Truncate "This is a long sentence", 10                '-> "This is..."
+    StringBetween "Robert Paul Todar", "Robert", "Todar"  '-> "Paul"
+    StringProperLength "1001", 6, "0", True               '-> "100100"
+    
+    'Inject() is a copy of StringInterpolation, this alias is easier to remember (shorter too!)
+    'Here is an example using a dictionary!
+    Dim Person As New Scripting.Dictionary
+    Person("Name") = "Robert"
+    Person("Age") = 30
+    
+    'REMEMBER, DICTIONARY KEYS ARE CASE SENSITIVE!
+    Debug.Print Inject("Hello,\nMy name is ${Name} and I am ${Age}!", Person)
+        '-> Hello,
+        '-> My name is Robert and I am 30!
+End Sub
+
+'******************************************************************************************
+' PUBLIC FUNCTIONS
+'******************************************************************************************
 
 'THIS RETURNS A PERCENTAGE OF HOW SIMILAR TWO STRINGS ARE USING THE Levenshtein FORMULA
-Public Function StringSimilarity(ByVal s1 As String, ByVal s2 As String) As Double
+Public Function StringSimilarity(ByVal FirstString As String, ByVal SecondString As String) As Double
     
     '@AUTHOR: ROBERT TODAR
     '@EXAMPLE: StringSimilarity("Test", "Tester") ->  66.6666666666667
     
-    Dim l1 As Integer
-    Dim l2 As Integer
+    'LEVENSHTEIN IS THE DISTANCE BETWEEN TWO SEQUENCES
+    Dim Levenshtein As Double
+    Levenshtein = LevenshteinDistance(FirstString, SecondString)
     
-    l1 = Len(s1)
-    l2 = Len(s2)
+    'CONVERT LEVENSHTEIN INTO A PERCENTAGE(0 TO 100)
+    StringSimilarity = (1 - (Levenshtein / Application.Max(Len(FirstString), Len(SecondString)))) * 100
     
-    Dim d() As Integer
-    ReDim d(l1, l2)
-    Dim I As Integer
-    For I = 0 To l1
-        d(I, 0) = I
+End Function
+
+'LEVENSHTEIN IS THE DISTANCE BETWEEN TWO SEQUENCES OF WORDS
+Public Function LevenshteinDistance(ByVal FirstString As String, ByVal SecondString As String) As Double
+    
+    '@AUTHOR: ROBERT TODAR
+    '@REF: https://www.cuelogic.com/blog/the-levenshtein-algorithm
+    '@EXAMPLE: LevenshteinDistance("Test", "Tester") ->  2
+    
+    Dim FirstLength As Integer
+    FirstLength = Len(FirstString)
+
+    Dim SecondLength As Integer
+    SecondLength = Len(SecondString)
+    
+    'PREPARE DISTANCE ARRAY MATRIX WITH THE PROPER INDEXES
+    Dim Distance() As Integer
+    ReDim Distance(FirstLength, SecondLength)
+    
+    Dim Index As Integer
+    For Index = 0 To FirstLength
+        Distance(Index, 0) = Index
     Next
     
-    Dim j As Integer
-    For j = 0 To l2
-        d(0, j) = j
+    Dim InnerIndex As Integer
+    For InnerIndex = 0 To SecondLength
+        Distance(0, InnerIndex) = InnerIndex
     Next
     
-    Dim min1 As Integer
-    Dim min2 As Integer
-    For I = 1 To l1
-        For j = 1 To l2
-            If Mid(s1, I, 1) = Mid(s2, j, 1) Then
-                d(I, j) = d(I - 1, j - 1)
+    'OUTER LOOP IS FOR THE FIRST STRING
+    For Index = 1 To FirstLength
+
+        'INNER LOOP IS FOR THE SECOND STRING
+        For InnerIndex = 1 To SecondLength
+
+            'CHARACTER MATCHES EXACTLY
+            If Mid(FirstString, Index, 1) = Mid(SecondString, InnerIndex, 1) Then
+                Distance(Index, InnerIndex) = Distance(Index - 1, InnerIndex - 1)
+            
+            'CHARACTER IS OFF, OFFSET THE MATRIX BY THE APPROPRIATE NUMBER
             Else
-                min1 = d(I - 1, j) + 1
-                min2 = d(I, j - 1) + 1
-                If min2 < min1 Then
-                    min1 = min2
+                Dim Min1 As Integer
+                Min1 = Distance(Index - 1, InnerIndex) + 1
+
+                Dim Min2 As Integer
+                Min2 = Distance(Index, InnerIndex - 1) + 1
+
+                If Min2 < Min1 Then
+                    Min1 = Min2
                 End If
-                min2 = d(I - 1, j - 1) + 1
-                If min2 < min1 Then
-                    min1 = min2
+                Min2 = Distance(Index - 1, InnerIndex - 1) + 1
+    
+                If Min2 < Min1 Then
+                    Min1 = Min2
                 End If
-                d(I, j) = min1
+                Distance(Index, InnerIndex) = Min1
+
             End If
         Next
     Next
     
-    Dim Levenshtein As Double
-    Levenshtein = d(l1, l2)
-    
-    StringSimilarity = (1 - (Levenshtein / Application.Max(Len(s1), Len(s2)))) * 100
+    'LEVENSHTEIN IS THE LAST INDEX OF THE ARRAY
+    LevenshteinDistance = Distance(FirstLength, SecondLength)
     
 End Function
 
-
 'METHOD THAT ALLOWS A STRING TO BE REPLACED WITH VARIABLES AND SPECIAL CHARACTERS
-
-'@author ROBERT TODAR
-'@required REFERENCE TO MICROSOFT SCRIPTING RUNTIME (SCRIPTING.DICTIONARY)
-'@example StringInterpolation("${0}\n\t${1}", "First Line", "Tab and Second Line")
 Public Function StringInterpolation(ByRef Source As String, ParamArray Args() As Variant) As String
     
+    '@AUTHOR: ROBERT TODAR
+    '@REQUIRED: REFERENCE TO MICROSOFT SCRIPTING RUNTIME (SCRIPTING.DICTIONARY)
+    '@EXAMPLE: StringInterpolation("${0}\n\t${1}", "First Line", "Tab and Second Line")
+    
     'USE REGULAR EXPRESSION REPLACE SPECIAL CHARATERS (NEWLINE, TAB)
-    Dim regEx As Object
-    Set regEx = CreateObject("VBScript.RegExp")
-    With regEx
+    'NOTE THE REPLACE IS RAN TWICE SINCE IT'S POSSIBLE FOR BACK TO BACK PATTERNS.
+    Dim RegEx As Object
+    Set RegEx = CreateObject("VBScript.RegExp")
+    With RegEx
         .Global = True
-        .Pattern = "(^|[^\\])\\n"
+        .Pattern = "((?:^|[^\\])(?:\\{2})*)(?:\\n)+"
         Source = .Replace(Source, "$1" & vbNewLine)
         Source = .Replace(Source, "$1" & vbNewLine)
-        .Pattern = "(^|[^\\])\\t"
-        Source = regEx.Replace(Source, "$1" & vbTab)
-        Source = regEx.Replace(Source, "$1" & vbTab)
+        .Pattern = "((?:^|[^\\])(?:\\{2})*)(?:\\t)+"
+        Source = RegEx.Replace(Source, "$1" & vbTab)
+        Source = RegEx.Replace(Source, "$1" & vbTab)
     End With
     
     'REPLACE ${#} WITH VALUES STORED IN VARIABLE.
     Dim Index As Integer
     Select Case True
+    
+        Case IsMissing(Args)
     
         Case TypeName(Args(0)) = "Dictionary":
             
@@ -114,8 +190,73 @@ Public Function StringInterpolation(ByRef Source As String, ParamArray Args() As
 
 End Function
 
+'METHOD THAT ALLOWS A STRING TO BE REPLACED WITH VARIABLES AND SPECIAL CHARACTERS
+'SHORTENED NAME TO StringInterpolation... FOR EASE OF USE.
+Public Function Inject(ByRef Source As String, ParamArray Args() As Variant) As String
+    
+    '@AUTHOR: ROBERT TODAR
+    '@REQUIRED: REFERENCE TO MICROSOFT SCRIPTING RUNTIME (SCRIPTING.DICTIONARY)
+    '@EXAMPLE: Inject("${0}\n\t${1}", "First Line", "Tab and Second Line")
+    
+    'USE REGULAR EXPRESSION REPLACE SPECIAL CHARATERS (NEWLINE, TAB)
+    'NOTE THE REPLACE IS RAN TWICE SINCE IT'S POSSIBLE FOR BACK TO BACK PATTERNS.
+    Dim RegEx As Object
+    Set RegEx = CreateObject("VBScript.RegExp")
+    With RegEx
+        .Global = True
+        .Pattern = "((?:^|[^\\])(?:\\{2})*)(?:\\n)+"
+        Source = .Replace(Source, "$1" & vbNewLine)
+        Source = .Replace(Source, "$1" & vbNewLine)
+        .Pattern = "((?:^|[^\\])(?:\\{2})*)(?:\\t)+"
+        Source = RegEx.Replace(Source, "$1" & vbTab)
+        Source = RegEx.Replace(Source, "$1" & vbTab)
+    End With
+    
+    'REPLACE ${#} WITH VALUES STORED IN VARIABLE.
+    Dim Index As Integer
+    Select Case True
+    
+        Case IsMissing(Args)
+    
+        Case TypeName(Args(0)) = "Dictionary":
+            
+            Dim Dict As Scripting.Dictionary
+            Set Dict = Args(0)
+            For Index = 0 To Dict.Count - 1
+                Source = Replace(Source, "${" & Dict.Keys(Index) & "}", Dict.items(Index), , , vbTextCompare)
+            Next Index
+            
+        Case TypeName(Args(0)) = "Collection":
+            Dim Col As Collection
+            Set Col = Args(0)
+            For Index = 1 To Col.Count
+                Source = Replace(Source, "${" & Index - 1 & "}", Col(Index), , , vbTextCompare)
+            Next Index
+            
+        Case Else:
+        
+            Dim Arr As Variant
+            If IsArray(Args(0)) Then
+                Arr = Args(0)
+            Else
+                Arr = Args
+            End If
+            
+            For Index = LBound(Arr, 1) To UBound(Arr, 1)
+                Source = Replace(Source, "${" & Index & "}", Arr(Index), , , vbTextCompare)
+            Next Index
+            
+    End Select
+    
+    Inject = Source
 
+End Function
+
+'CREATE A MAX LENGHT OF STRING AND RETURN IT WITH EXTENSION
 Public Function Truncate(ByRef Source As String, MaxLength As Integer) As String
+    
+    'AUTHOR: ROBERT TODAR
+    'EXAMPLE: Truncate("This is a long sentence", 10)  -> "This is..."
     
     If Len(Source) <= MaxLength Then
         Truncate = Source
@@ -128,9 +269,12 @@ Public Function Truncate(ByRef Source As String, MaxLength As Integer) As String
     
 End Function
 
-' Find Value between two words in a string
+'FIND A STRING BETWEEN TWO WORDS
 Public Function StringBetween(ByVal Main As String, ByVal Between1 As String, Optional ByVal Between2 As String) As String
-
+    
+    'AUTHOR: ROBERT TODAR
+    'EXAMPLE: StringBetween("Robert Paul Todar", "Robert", "Todar")  -> "Paul"
+    
     Dim I As Integer
     Dim i2 As Integer
     
@@ -147,9 +291,12 @@ Public Function StringBetween(ByVal Main As String, ByVal Between1 As String, Op
     
 End Function
 
-
-Public Function StringProperLength(ByVal Value As String, Length As Integer, FillValue As String, Optional AfterString As Boolean = True) As String
-
+'RETURNS A STRING WITH THE PROPER PADDING ON EACH SIDE.
+Public Function StringProperLength(ByVal Value As String, ByVal Length As Integer, ByVal FillValue As String, Optional AfterString As Boolean = True) As String
+    
+    'AUTHOR: ROBERT TODAR
+    'EXAMPLE: StringProperLength("1001", 6, "0", True) -> "100100"
+    
     If Len(Value) >= Length Then
         Value = Left(Value, Length)
     Else
