@@ -88,6 +88,15 @@ You've found my VBA Libray GitHub repository, which contains functions as well a
     ' good
     Dim FirstName as String
     ```
+    
+    - [1.4](#camel--case) Use camelCase for parameters and local variables and functions.
+    ```vb
+    ' good
+    Private Function sayName (ByVal name as string)
+      ' ...
+    End Function
+    ```
+    
   **[⬆ back to top](#table-of-contents)**
 
 ### Comments
