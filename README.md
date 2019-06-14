@@ -80,7 +80,7 @@ You've found my VBA Libray GitHub repository, which contains functions as well a
   <a name="underscore--case"></a><a name="1.3"></a>
   - [1.3](#underscore--case) Do not use underscore case.
     
-    > Why? VBA uses underscores for pointing out events and implementation. Adding underscores not only makes it confusing, but can also lead to bugs.
+    > Why? VBA uses underscores for pointing out events and implementation. In fact, you can't implement another class if the other class has any public methods or properties with an underscore in the name otherwise you will get the error [Bad interface for Implements: method has underscore in name](https://docs.microsoft.com/en-us/office/vba/language/reference/user-interface-help/bad-interface-for-implements-method-has-underscore-in-name) .
     ```vb
     ' bad
     Dim First_Name as String
