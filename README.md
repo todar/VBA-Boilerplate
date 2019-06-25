@@ -18,7 +18,7 @@ You've found my VBA Libray GitHub repository, which contains functions to help m
 
   Below is an example function of how I entend all my code to be written. 
 
-  > Please see my [Style Guide](https://github.com/todar/VBA) for how to write clean and maintainable code using VBA.
+  > Please see my [Style Guide](https://github.com/todar/VBA) for how to write clean and maintainable VBA code.
 
   ```vb
 ' A simple Dictionary Factory.
