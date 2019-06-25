@@ -5,8 +5,6 @@
 
 You've found my VBA Libray GitHub repository, which contains functions to help make programming in VBA easier.
 
-> Please see my [Style Guide](https://github.com/todar/VBA) for how to write clean and maintainable code using VBA.
-
 > This repository is currently under construction, but will be intended to be a place to help make VBA more open source.
 
 
@@ -20,7 +18,7 @@ You've found my VBA Libray GitHub repository, which contains functions to help m
 
   Below is an example function of how I entend all my code to be written. 
 
-  > If you'd like to contribute please try to format similar to this for consistency.
+  > Please see my [Style Guide](https://github.com/todar/VBA) for how to write clean and maintainable code using VBA.
 
   ```vb
 ' A simple Dictionary Factory.
