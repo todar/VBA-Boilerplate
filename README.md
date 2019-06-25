@@ -3,123 +3,52 @@
     <h1 align="center">VBA Function Library</h1>
 </p>
 
-You've found my VBA Libray GitHub repository, which contains functions as well as a style guide to help make programming in VBA easier.
+You've found my VBA Libray GitHub repository, which contains functions to help make programming in VBA easier.
+
+> Please see my [Style Guide](https://github.com/todar/VBA) for how to write clean and maintainable code using VBA.
 
 > This repository is currently under construction, but will be intended to be a place to help make VBA more open source.
 
 
 ## Table of Contents
 
-  1. [Style Guide](#style-guide)
-     1. [Naming Conventions](#naming-conventions)
-     2. [Comments](#comments)
-     3. [Design](#design)
+  1. [Style Example](#style-example)
   2. [Array Examples](#array-functions)
   3. [String Examples](#string-functions)
 
-## Style Guide
+## Style Example
 
   Below is an example function of how I entend all my code to be written. 
 
   > If you'd like to contribute please try to format similar to this for consistency.
 
   ```vb
-  'A simple Dictionary Factory.
-  Private Function ToDictionary(ParamArray keyValuePairs() As Variant) As Scripting.Dictionary
-      
-      ' @author: Robert Todar <robert@roberttodar.com>
-      ' @ref: MicroSoft Scripting Runtime
-      ' @example: ToDictionary("Name", "Robert", "Age", 30) '--> { "Name": "Robert, "Age": 30 }
-      
-      ' Get length of array to check to see if there are valid parameters.
-      Dim ArrayLenght As Long
-      ArrayLenght = UBound(keyValuePairs) - LBound(keyValuePairs) + 1
-      
-      ' Check to see that key/value pairs passed in (an even number).
-      If ArrayLenght Mod 2 <> 0 Then
-          Err.Raise 5, "ToDictionary", "Invalid parameters: expecting key/value pairs, but received an odd number of arguments."
-      End If
-      
-      ' Add key values to the return Dictionary.
-      Set ToDictionary = New Scripting.Dictionary
-      Dim Index As Long
-      For Index = LBound(keyValuePairs) To UBound(keyValuePairs) Step 2
-          ToDictionary.Add keyValuePairs(Index), keyValuePairs(Index + 1)
-      Next Index
-      
-  End Function
+' A simple Dictionary Factory.
+Private Function ToDictionary(ParamArray keyValuePairs() As Variant) As Scripting.Dictionary
+    
+    ' @author: Robert Todar <robert@roberttodar.com>
+    ' @ref: MicroSoft Scripting Runtime
+    ' @example: ToDictionary("Name", "Robert", "Age", 30) '--> { "Name": "Robert, "Age": 30 }
+    
+    ' Check to see that key/value pairs passed in (an even number).
+    If ArrayLength(CVar(keyValuePairs)) Mod 2 <> 0 Then
+        Err.Raise 5, "ToDictionary", "Invalid parameters: expecting key/value pairs, but received an odd number of arguments."
+    End If
+    
+    ' Add key values to the return Dictionary.
+    Set ToDictionary = New Scripting.Dictionary
+    Dim Index As Long
+    For Index = LBound(keyValuePairs) To UBound(keyValuePairs) Step 2
+        ToDictionary.Add keyValuePairs(Index), keyValuePairs(Index + 1)
+    Next Index
+    
+End Function
+
+' Returns the number of elements in an Array. (Notice how I use abstraction, this should be in its own library)
+Private Function ArrayLength(ByRef Source As Variant) As Long
+    ArrayLength = UBound(Source) - LBound(Source) + 1
+End Function
   ```
-
-## Naming Conventions
-
-  <a name="single--letter--names"></a><a name="1.1"></a>
-  - [1.1](#single--letter--names) Avoid single letter names. Be descriptive with your naming.
-    ```vb
-    ' bad
-    Function Q ()
-      Dim i as Long
-      ' ...
-    End Function
-
-    ' good
-    Function Query ()
-      Dim RecordIndex as Long
-      ' ...
-    End Function
-    ```
-
-  <a name="pascal--case"></a><a name="1.2"></a>
-  - [1.2](#pascal--case) Use PascalCase for all your naming.
-    ```vb
-    ' good
-    Function GreetUser ()
-      ' ...
-    End Function
-    ```
-
-  <a name="underscore--case"></a><a name="1.3"></a>
-  - [1.3](#underscore--case) Do not use underscore case.
-    
-    > Why? VBA uses underscores for pointing out events and implementation. In fact, you can't implement another class if the other class has any public methods or properties with an underscore in the name otherwise you will get the error [Bad interface for Implements: method has underscore in name](https://docs.microsoft.com/en-us/office/vba/language/reference/user-interface-help/bad-interface-for-implements-method-has-underscore-in-name) .
-    ```vb
-    ' bad
-    Dim First_Name as String
-
-    ' good
-    Dim FirstName as String
-    ```
-  <a name="camel--case"></a><a name="1.4"></a>
-  - [1.4](#camel--case) Use camelCase for parameters and local variables and functions.
-    ```vb
-    ' good
-    Private Function sayName (ByVal name as string)
-      ' ...
-    End Function
-    ```
-    
-  **[⬆ back to top](#table-of-contents)**
-
-### Comments
-
-  <a name="description-header-comment"></a><a name="2.1"></a>
-  - [2.1](#description-header-comment) Above the function should be a simple description of what the function does.
-
-  <a name="doc--comment"></a><a name="2.2"></a>
-  - [2.1](#doc--comment) Just inside the function is where I will put important details. This could be author, library references, notes, Ect. I've styled this to be similar to [JSDoc documentation](https://devdocs.io/jsdoc/). 
-
-  <a name="descriptive--comment"></a><a name="2.1"></a>
-  - [2.1](#descriptive--comment) Notes should be clear and full sentences. Explain anything that doesn't immediatly make sence from the code.
-
-  **[⬆ back to top](#table-of-contents)**
-
-
-### Design
-
-  Functions should be as small as possible designed to resusable. This means they should be very readable.
-
-  Declarations should be made where the variables are needed. Notice `Dim Index as Long` is declared right before the loop. This makes it easier to read, debug, and refactor if need be.
-
-  **[⬆ back to top](#table-of-contents)**
 
 ----
 
