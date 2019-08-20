@@ -107,31 +107,19 @@ End Function
 ## String Functions
 
   ```vb
-  '/**
-  ' * Examples of different string functions.
-  ' * @author Robert Todar <robert@roberttodar.com>
-  ' */
-  Private Sub stringFunctionExamples()
-      StringSimilarity "Test", "Tester"        '->  66.6666666666667
-      LevenshteinDistance "Test", "Tester"     '->  2
-                                                        
-      Truncate "This is a long sentence", 10                '-> "This is..."
-      StringBetween "Robert Paul Todar", "Robert", "Todar"  '-> "Paul"
-      StringProperLength "1001", 6, "0", True               '-> "100100"
-      
-      'Inject is a copy of StringInterpolation
-      Inject "${0}\n\t${1}", "First", "Tab and Second" '-> First
-                                                        '->   Tab and Second
-      
-      ' Here is an example using a dictionary!
-      Dim Person As New Scripting.Dictionary
-      Person("Name") = "Robert"
-      Person("Age") = 30
-      
-      ' REMEMBER, DICTIONARY KEYS ARE CASE SENSITIVE!
-      Debug.Print Inject("Hello,\nMy name is ${Name} and I am ${Age}!", Person)
-          '-> Hello,
-          '-> My name is Robert and I am 30!
-  End Sub
+'/**
+' * Examples of different string functions.
+' * @author Robert Todar <robert@robertodar.com>
+' */
+Private Sub testsForStringFunctions()
+    Debug.Print StringSimilarity("Test", "Tester")                     '->  66.6666666666667
+    Debug.Print LevenshteinDistance("Test", "Tester")                  '->  2
+    Debug.Print Truncate("This is a long sentence", 10)                '-> "This is..."
+    Debug.Print StringBetween("Robert Paul Todar", "Robert", "Todar")  '-> "Paul"
+    Debug.Print StringPadding("1001", 6, "0", True)                    '-> "100100"
+    Debug.Print Inject("Hello,\nMy name is {Name} and I am {Age}!", "Robert", 31)
+        '-> Hello,
+        '-> My name is Robert and I am 30!
+End Sub
   ```
   **[⬆ back to top](#table-of-contents)**
