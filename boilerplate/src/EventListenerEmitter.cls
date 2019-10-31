@@ -6,15 +6,29 @@ Attribute VB_Name = "EventListenerEmitter"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
-Attribute VB_Exposed = False
+Attribute VB_Exposed = True
 Option Explicit
 Option Compare Text
+
+Public Enum EmittedEvent
+    Click
+    DoubleClick
+    MouseMove
+    MouseOut
+    MouseOver
+    MouseDown
+    MouseUp
+    KeyUp
+    KeyDown
+    Focus
+    Blur
+End Enum
 
 ' ARRAY OF ALL THE DIFFERENT EVENT ListenerS FOR EVERY USERFORM CONTROL +FORM ITSELF
 Private EventList() As New EventListenerItem
 
 ' ALL CURRENT POSSIBLE EVENTS THAT CAN BE EMITTED. NOTE, EMITTEDEVENT IS SENT FOR ALL!
-Public Event EmittedEvent(ByRef Control As Object, ByVal EventName As String, ByRef EventParameters As Scripting.Dictionary)
+Public Event EmittedEvent(ByRef Control As Object, ByVal EventType As EmittedEvent, ByRef EventParameters As Scripting.Dictionary)
 
 Public Event Click(ByRef Control As Object)
 Public Event DblClick(ByRef Control As Object, ByRef Cancel As MSForms.ReturnBoolean)
@@ -27,72 +41,112 @@ Public Event Focus(ByRef Control As Object)
 Public Event Blur(ByRef Control As Object)
 Public Event Change(ByRef Control As Object)
 
-Public Event LabelMouseOver(ByRef lbl As MSForms.Label)
-Public Event LabelMouseOut(ByRef lbl As MSForms.Label)
-Public Event LabelClick(ByRef lbl As MSForms.Label)
-Public Event LabelDblClick(ByRef lbl As MSForms.Label, ByRef Cancel As MSForms.ReturnBoolean)
+' Label specific events
+Public Event LabelMouseOver(ByRef label As MSForms.label)
+Public Event LabelMouseOut(ByRef label As MSForms.label)
+Public Event LabelClick(ByRef label As MSForms.label)
+Public Event LabelDoubleClick(ByRef label As MSForms.label, ByRef Cancel As MSForms.ReturnBoolean)
+Public Event LabelMouseMove(ByRef label As MSForms.label, ByRef Shift As Integer, ByRef X As Single, ByRef Y As Single)
+
+' Textbox specific events
+Public Event TextBoxMouseOver(ByRef textbox As MSForms.textbox)
+Public Event TextBoxMouseOut(ByRef textbox As MSForms.textbox)
+Public Event TextBoxFocus(ByRef textbox As MSForms.textbox)
+Public Event TextBoxBlur(ByRef textbox As MSForms.textbox)
+Public Event TextBoxClick(ByRef textbox As MSForms.textbox)
+Public Event TextBoxDoubleClick(ByRef textbox As MSForms.textbox, ByRef Cancel As MSForms.ReturnBoolean)
+Public Event TextBoxMouseMove(ByRef textbox As MSForms.textbox, ByRef Shift As Integer, ByRef X As Single, ByRef Y As Single)
 
 ' CALLED BY EVENTLISTENERCOLLECTION CLASS - MAIN ENTRYWAY OF EMITTING ALL EVENTS
-Public Sub EmitEvent(ByRef Control As Object, ByVal EventName As String, ByRef EventParameters As Scripting.Dictionary)
+Public Sub EmitEvent(ByRef Control As Object, ByVal EventType As EmittedEvent, ByRef EventParameters As Scripting.Dictionary)
     ' EVENT RAISED FOR ALL EVENTS. THIS IS A WAY FOR THE USER TO COLLECT FROM A SINGLE LOCATION.
-    RaiseEvent EmittedEvent(Control, EventName, EventParameters)
+    RaiseEvent EmittedEvent(Control, EventType, EventParameters)
     
     ' SPECIFIC EVENTS PER OBJECT-TYPE
-    Select Case EventName
-        Case "Click"
+    Select Case EventType
+        Case Click
             RaiseEvent Click(Control)
         
-        Case "DblClick"
+        Case DoubleClick
             RaiseEvent DblClick(Control, EventParameters("Cancel"))
         
-        Case "KeyUp"
+        Case KeyUp
             RaiseEvent KeyUp(Control, EventParameters("KeyCode"), EventParameters("Shift"))
             
-        Case "KeyDown"
+        Case KeyDown
             RaiseEvent KeyDown(Control, EventParameters("KeyCode"), EventParameters("Shift"))
         
-        Case "MouseOver"
+        Case MouseOver
             RaiseEvent MouseOver(Control)
             
-        Case "MouseOut"
+        Case MouseOut
             RaiseEvent MouseOut(Control)
             
-        Case "Focus"
+        Case Focus
             RaiseEvent Focus(Control)
             
-        Case "Blur"
+        Case Blur
             RaiseEvent Blur(Control)
             
-        Case "MouseMove"
+        Case MouseMove
             RaiseEvent MouseMove(Control, EventParameters("Shift"), EventParameters("X"), EventParameters("Y"))
     End Select
     
     Select Case TypeName(Control)
         Case "Label"
-            EmitLabelEvent Control, EventName, EventParameters
+            EmitLabelEvent Control, EventType, EventParameters
+            
+        Case "TextBox"
+            EmitTextboxEvent Control, EventType, EventParameters
     End Select
 End Sub
 
-Private Sub EmitLabelEvent(ByRef lbl As MSForms.Label, ByVal EventName As String, ByRef EventParameters As Scripting.Dictionary)
-    Select Case EventName
-        Case "Click"
-            RaiseEvent LabelClick(lbl)
+' Label Specific Events
+Private Sub EmitLabelEvent(ByRef label As MSForms.label, ByVal EventType As EmittedEvent, ByRef EventParameters As Scripting.Dictionary)
+    Select Case EventType
+        Case Click
+            RaiseEvent LabelClick(label)
             
-        Case "DblClick"
-            RaiseEvent LabelDblClick(lbl, EventParameters("Cancel"))
+        Case DoubleClick
+            RaiseEvent LabelDoubleClick(label, EventParameters("Cancel"))
             
-        Case "MouseOver"
-            RaiseEvent LabelMouseOver(lbl)
+        Case MouseOver
+            RaiseEvent LabelMouseOver(label)
             
-        Case "MouseOut"
-            RaiseEvent LabelMouseOut(lbl)
+        Case MouseOut
+            RaiseEvent LabelMouseOut(label)
 
-        Case "MouseMove"
-            'RaiseEvent MouseMove(Control, EventParameters("Shift"), EventParameters("X"), EventParameters("Y"))
+        Case MouseMove
+            RaiseEvent LabelMouseMove(label, EventParameters("Shift"), EventParameters("X"), EventParameters("Y"))
+    End Select
+End Sub
+
+' Textbox Specific Events
+Private Sub EmitTextboxEvent(ByRef textbox As MSForms.textbox, ByVal EventType As EmittedEvent, ByRef EventParameters As Scripting.Dictionary)
+    Select Case EventType
+        Case Focus
+            RaiseEvent TextBoxFocus(textbox)
+            
+        Case Blur
+            RaiseEvent TextBoxBlur(textbox)
+            
+        Case Click
+            RaiseEvent TextBoxClick(textbox)
+            
+        Case DoubleClick
+            RaiseEvent TextBoxDoubleClick(textbox, EventParameters("Cancel"))
+            
+        Case MouseOver
+            RaiseEvent TextBoxMouseOver(textbox)
+            
+        Case MouseOut
+            RaiseEvent TextBoxMouseOut(textbox)
+
+        Case MouseMove
+            RaiseEvent TextBoxMouseMove(textbox, EventParameters("Shift"), EventParameters("X"), EventParameters("Y"))
     End Select
 End Sub
     
-
 ' MUST CALL THIS IF YOU WANT TO programmatically SET CONTROL! OTHERWISE, EVENT'S WILL BE OFF!
 Public Sub SetFocusToControl(ByRef Control As Object)
     ' If the user was to set focus through VBA then this code will fall apart considering
@@ -103,7 +157,7 @@ Public Sub SetFocusToControl(ByRef Control As Object)
     End If
 End Sub
 
-'ADD EVENT ListenerS ON SPECIFIC CONTROLS - ALSO CALLED BY AddEventListenerAll
+' ADD EVENT ListenerS ON SPECIFIC CONTROLS - ALSO CALLED BY AddEventListenerAll
 Public Sub AddEventListener(ByRef Control As Object)
     ' Events are stored in a private EventListenerItem array
     If IsArrayEmpty(EventList) Then
@@ -116,7 +170,7 @@ Public Sub AddEventListener(ByRef Control As Object)
     EventList(UBound(EventList)).AddEventListener Control, Me
 End Sub
 
-'ADD EVENT Listener TO ALL CONTROLS INCLUDING THE FORM
+' ADD EVENT Listener TO ALL CONTROLS INCLUDING THE FORM
 Public Sub AddEventListenerAll(ByRef form As Object)
     AddEventListener form
     
