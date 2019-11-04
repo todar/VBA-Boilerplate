@@ -96,10 +96,8 @@ Public Function LevenshteinDistance(ByVal firstString As String, ByVal secondStr
     
     ' Outer loop is for the first string
     For index = 1 To firstLength
-
         ' Inner loop is for the second string
         For innerIndex = 1 To secondLength
-
             ' Character matches exactly
             If Mid(firstString, index, 1) = Mid(secondString, innerIndex, 1) Then
                 distance(index, innerIndex) = distance(index - 1, innerIndex - 1)
@@ -121,11 +119,9 @@ Public Function LevenshteinDistance(ByVal firstString As String, ByVal secondStr
                     min1 = min2
                 End If
                 distance(index, innerIndex) = min1
-
             End If
         Next
     Next
-    
     ' Levenshtein is the last index of the array.
     LevenshteinDistance = distance(firstLength, secondLength)
 End Function
@@ -154,7 +150,6 @@ Public Function Inject(ByVal source As String, ParamArray values() As Variant) A
 
         ' This section is only when user passes in variables
         If Not IsMissing(values) Then
-
             ' Looking for pattern like: {key}
             ' First capture group is the full pattern: {key}
             ' Second capture group is just the name:    key
@@ -165,24 +160,22 @@ Public Function Inject(ByVal source As String, ParamArray values() As Variant) A
 
             Dim keyMatch As Match
             For Each keyMatch In .Execute(Inject)
-
                 ' Extract key name
-                Dim key As Variant
-                key = keyMatch.SubMatches(1)
+                Dim Key As Variant
+                Key = keyMatch.SubMatches(1)
 
                 ' Only want to increment on unique keys.
-                If Not keys.Exists(key) Then
+                If Not keys.Exists(Key) Then
 
                     If (keys.count) > UBound(values) Then
-                        Err.Raise 9, "Inject", "Inject expects an equal amount of keys to values. Keys found: " & Join(keys.keys, ", ") & ", " & key
+                        Err.Raise 9, "Inject", "Inject expects an equal amount of keys to values. Keys found: " & Join(keys.keys, ", ") & ", " & Key
                     End If
 
                     ' Replace {key} with the pairing value.
                     Inject = Replace(Inject, keyMatch.SubMatches(0), values(keys.count))
 
                     ' Add key to make sure it isn't looped again.
-                    keys.Add key, vbNullString
-
+                    keys.Add Key, vbNullString
                End If
             Next
         End If
@@ -292,23 +285,23 @@ End Function
 
 '/** Helper function to add lines for ToString() */
 Private Function AddLineIfNeeded(ByVal source As Variant) As String
-        If TypeName(source) = "Dictionary" _
-            Or TypeName(source) = "Collection" _
-            Or IsArrayDimension(source, 1) _
-            Or IsArrayDimension(source, 2) Then
-            
-            AddLineIfNeeded = vbNewLine & "  "
-        End If
+    If TypeName(source) = "Dictionary" _
+        Or TypeName(source) = "Collection" _
+        Or IsArrayDimension(source, 1) _
+        Or IsArrayDimension(source, 2) Then
+        
+        AddLineIfNeeded = vbNewLine & "  "
+    End If
 End Function
 
 '/** Dictionary as a string */
 Private Function toStingDictionary(ByVal source As Scripting.Dictionary, ByVal delimiter As String) As String
     toStingDictionary = "{"
     
-    Dim key As Variant
-    For Each key In source.keys
-        toStingDictionary = toStingDictionary & AddLineIfNeeded(source(key)) & """" & key & """" & ": " & ToString(source(key)) & delimiter
-    Next key
+    Dim Key As Variant
+    For Each Key In source.keys
+        toStingDictionary = toStingDictionary & AddLineIfNeeded(source(Key)) & """" & Key & """" & ": " & ToString(source(Key)) & delimiter
+    Next Key
     toStingDictionary = Left(toStingDictionary, Len(toStingDictionary) - Len(delimiter)) & IIf(InStr(toStingDictionary, vbNewLine), vbNewLine, "") & "}"
 End Function
 
@@ -379,6 +372,3 @@ End Function
 Private Function arrayLength(ByRef source As Variant) As Long
     arrayLength = UBound(source) - LBound(source) + 1
 End Function
-
-
-

@@ -101,28 +101,28 @@ Private Property Get fileName() As String
     fileName = "Log-Report-" & Year(Date) & "-" & MonthName(Month(Date)) & ".html"
 End Property
 
-Private Sub injectHtmlToFile(ByVal filePath As String, ByVal htmlMessage As String)
+Private Sub injectHtmlToFile(ByVal FILEPATH As String, ByVal htmlMessage As String)
     ' Need to create copy of log file if it doesn't exist.
-    If Not this.fso.FileExists(filePath) Then
+    If Not this.fso.FileExists(FILEPATH) Then
         ' Template file must exist to work.
         If Not this.fso.FileExists(TemplateFilePath) Then
             Debug.Print "[X] [injectHtmlToFile] Not able to log to file. Notify developer the template file does not exist."
             Exit Sub
         End If
         ' Must be able to build file path to work.
-        If BuildOutFilePath(filePath) = False Then
-            Debug.Print "[X] [injectHtmlToFile] Not able to log to file. Unable to build filePath: " & filePath
+        If BuildOutFilePath(FILEPATH) = False Then
+            Debug.Print "[X] [injectHtmlToFile] Not able to log to file. Unable to build filePath: " & FILEPATH
             Exit Sub
         End If
         
-        this.fso.CopyFile TemplateFilePath, filePath, True
+        this.fso.CopyFile TemplateFilePath, FILEPATH, True
     End If
     
     ' Only will get to this section if the filePath exists. Ok to inject to HTMLKEY.
     Dim html As String
-    html = ReadTextFile(filePath)
+    html = ReadTextFile(FILEPATH)
     html = Replace(html, HTMLKEY, HTMLKEY & vbNewLine & htmlMessage)
     
     ' Write back to log the appended html.
-    WriteToTextFile filePath, html
+    WriteToTextFile FILEPATH, html
 End Sub

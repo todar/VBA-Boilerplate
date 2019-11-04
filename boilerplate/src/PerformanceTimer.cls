@@ -36,7 +36,7 @@ Option Compare Text
 ' */
 Private Type state
     Frequency As Currency
-    StartTime As Double
+    startTime As Double
     SplitTime As Double
     Laps As Collection
 End Type
@@ -67,7 +67,7 @@ Public Property Get Seconds() As Double
     If this.Frequency = 0 Then
         Seconds = 0
     Else
-        Seconds = ((Tick / this.Frequency) - this.StartTime)
+        Seconds = ((Tick / this.Frequency) - this.startTime)
     End If
 End Property
 
@@ -76,7 +76,7 @@ End Property
 ' */
 Public Sub StartTimer()
     getFrequency this.Frequency
-    this.StartTime = Tick / this.Frequency
+    this.startTime = Tick / this.Frequency
 End Sub
 
 'Public Sub PauseTimer()
@@ -87,7 +87,7 @@ End Sub
 ' */
 Public Sub ResetTimer()
     this.SplitTime = 0
-    this.StartTime = 0
+    this.startTime = 0
     this.Frequency = 0
 End Sub
 

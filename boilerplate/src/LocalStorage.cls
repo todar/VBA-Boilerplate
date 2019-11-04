@@ -29,7 +29,7 @@ End Property
 ' * @param {String} key The key of the value.
 ' * @param {String} [fallback] A default value in case the key doesn't exist.
 ' */
-Public Function GetItem(ByVal key As String, ByVal fallback As Variant) As Variant
+Public Function GetItem(ByVal Key As String, ByVal fallback As Variant) As Variant
     On Error GoTo Catch
     If BuildOutFilePath(localStorageFilePath) = False Then
         GetItem = fallback
@@ -39,8 +39,8 @@ Public Function GetItem(ByVal key As String, ByVal fallback As Variant) As Varia
     Dim data As Scripting.Dictionary
     Set data = JSON.Parse(ReadTextFile(localStorageFilePath))
     
-    If data.Exists(key) Then
-        GetItem = data(key)
+    If data.Exists(Key) Then
+        GetItem = data(Key)
     Else
         GetItem = fallback
     End If
@@ -51,7 +51,7 @@ Catch:
 End Function
 
 '**/ Set a key value pair to the saved text file. */
-Public Sub SetItem(ByVal key As String, ByVal value As Variant)
+Public Sub SetItem(ByVal Key As String, ByVal value As Variant)
     On Error GoTo Catch
     If BuildOutFilePath(localStorageFilePath) = False Then
         Exit Sub
@@ -65,7 +65,7 @@ Public Sub SetItem(ByVal key As String, ByVal value As Variant)
     Dim data As Variant
     Set data = JSON.Parse(jsonValue)
     
-    data(key) = value
+    data(Key) = value
     WriteToTextFile localStorageFilePath, JSON.Stringify(data, 2)
     
     Exit Sub
@@ -74,7 +74,7 @@ Catch:
 End Sub
 
 '**/ Remove an item based on the key */
-Public Sub RemoveItem(ByVal key As Variant)
+Public Sub RemoveItem(ByVal Key As Variant)
     On Error GoTo Catch
     If BuildOutFilePath(localStorageFilePath) = False Then
         Exit Sub
@@ -83,8 +83,8 @@ Public Sub RemoveItem(ByVal key As Variant)
     Dim data As Scripting.Dictionary
     Set data = JSON.Parse(ReadTextFile(localStorageFilePath))
     
-    If data.Exists(key) Then
-        data.Remove (key)
+    If data.Exists(Key) Then
+        data.Remove (Key)
     End If
 
     WriteToTextFile localStorageFilePath, JSON.Stringify(data, 2)

@@ -153,16 +153,16 @@ Private Sub emitter_EmittedEvent(ByRef Control As Object, ByVal EventType As Emi
     ' active. Why do a mouseover event if the mouse is already over? Yay!
     Select Case EventType
         Case MouseOver
-            If this.controlReference.Name <> Control.Name And this.isHoveredControl Then
+            If this.controlReference.name <> Control.name And this.isHoveredControl Then
                 this.isHoveredControl = False
                 emitter.EmitEvent this.controlReference, MouseOut, ToDictionary()
             End If
             
         Case Focus
-            If this.controlReference.Name <> Control.Name And this.isFocusedControl Then
+            If this.controlReference.name <> Control.name And this.isFocusedControl Then
                 this.isFocusedControl = False
                 emitter.EmitEvent this.controlReference, Blur, ToDictionary()
-            ElseIf this.controlReference.Name = Control.Name And this.isFocusedControl = False Then
+            ElseIf this.controlReference.name = Control.name And this.isFocusedControl = False Then
                 this.isFocusedControl = True
             End If
     End Select

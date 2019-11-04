@@ -1,4 +1,7 @@
 Attribute VB_Name = "CastingFunctions"
+'**/
+' * Functions to help structure data in a variety of ways.
+' */
 Option Explicit
 
 ' Jagged array.. Just sticking with a consistent naming convention with other functions
@@ -8,7 +11,6 @@ Public Function ToArrayOfArrays(ByRef sourceArray As Variant) As Variant
     
     Dim rowIndex As Long
     For rowIndex = LBound(sourceArray) To UBound(sourceArray)
-    
         Dim RowList As Variant
         ReDim RowList(LBound(sourceArray, 2) To UBound(sourceArray, 2))
         
@@ -18,7 +20,6 @@ Public Function ToArrayOfArrays(ByRef sourceArray As Variant) As Variant
         Next colIndex
         
         temp(rowIndex) = RowList
-        
     Next rowIndex
     
     ToArrayOfArrays = temp
@@ -66,7 +67,6 @@ Public Function ToArrayOfCollections(ByRef sourceArray As Variant) As Variant
     
     Dim rowIndex As Long
     For rowIndex = LBound(sourceArray) + 1 To UBound(sourceArray)
-        
         ' ADD ROW VALUES TO Collection
         Dim RowObject As Collection
         Set RowObject = New Collection
@@ -79,7 +79,6 @@ Public Function ToArrayOfCollections(ByRef sourceArray As Variant) As Variant
         ' ADD Collection TO ARRAY
         Set RowArray(rowIndex - 1) = RowObject
         Set RowObject = Nothing
-        
     Next rowIndex
     
     ' CONVERT ARRAY TO JSON STRING
@@ -96,7 +95,6 @@ Public Function ToCollectionOfCollections(ByRef sourceArray As Variant) As Colle
     
     Dim rowIndex As Long
     For rowIndex = LBound(sourceArray) + 1 To UBound(sourceArray)
-        
         ' ADD ROW VALUES TO Collection
         Dim RowObject As Collection
         Set RowObject = New Collection
@@ -109,14 +107,15 @@ Public Function ToCollectionOfCollections(ByRef sourceArray As Variant) As Colle
         ' ADD Collection TO ARRAY
         ToCollectionOfCollections.Add RowObject
         Set RowObject = Nothing
-        
     Next rowIndex
 End Function
 
-' A simple Dictionary Factory.
-' @author: Robert Todar <robert@roberttodar.com>
-' @ref: MicroSoft Scripting Runtime
-' @example: ToDictionary("Name", "Robert", "Age", 30) '--> { "Name": "Robert, "Age": 30 }
+'/**
+' * A simple Dictionary Factory.
+' * @author: Robert Todar <robert@roberttodar.com>
+' * @ref: MicroSoft Scripting Runtime
+' * @example: ToDictionary("Name", "Robert", "Age", 30) '--> { "Name": "Robert, "Age": 30 }
+' */
 Public Function ToDictionary(ParamArray keyValuePairs() As Variant) As Scripting.Dictionary
   ' Check to see that key/value pairs passed in (an even number).
   If arrayLength(CVar(keyValuePairs)) Mod 2 <> 0 Then
@@ -131,9 +130,11 @@ Public Function ToDictionary(ParamArray keyValuePairs() As Variant) As Scripting
   Next index
 End Function
 
-' A simple Collection Factory.
-' @author: Robert Todar <robert@roberttodar.com>
-' @example: ToCollection("Name", "Robert", "Age", 30) '--> { "Name": "Robert, "Age": 30 }
+'/**
+' * A simple Collection Factory.
+' * @author: Robert Todar <robert@roberttodar.com>
+' * @example: ToCollection("Name", "Robert", "Age", 30) '--> { "Name": "Robert, "Age": 30 }
+' */
 Public Function ToCollection(ParamArray keyValuePairs() As Variant) As Collection
     ' Check to see that key/value pairs passed in (an even number).
     If arrayLength(CVar(keyValuePairs)) Mod 2 <> 0 Then
