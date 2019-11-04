@@ -12,8 +12,10 @@ Attribute VB_Exposed = False
 ' * code use, new users, code completion, errors, timing, trends and other metrics.
 ' *
 ' * @author Robert Todar <robert@roberttodar.com>
-' * @module {Class} MicroStopWatch
-' * @ref {Microsoft xml, v6.0} MSXML2.DOMDocument60, IXMLDOMElement
+' * @ref {Library} Microsoft Scripting Runtime
+' * @ref {Class Module} JSON
+' * @ref {Module} FileSystemsUtilities
+' * @ref {Function} FileSystemsUtilities.BuildOutFilePath
 ' */
 Option Explicit
 
@@ -21,12 +23,10 @@ Option Explicit
 ' * State is a {Type} containing all the private variables for this class.
 ' */
 Private Type state
-    id As String
-    timer As MicroStopWatch
-    doc As MSXML2.DOMDocument60
-    record As IXMLDOMElement
-    isComplete As Boolean
+    stats As Scripting.Dictionary
+    startTime As Double
     wasStarted As Boolean
+    wasReported As Boolean
     isDisabled As Boolean
 End Type
 
@@ -47,18 +47,25 @@ End Type
 ' */
 Private Declare Function CoCreateGuid Lib "OLE32.DLL" (pGuid As GUID) As Long
 Private this As state
-Private Const filePath As String = "C:\rtmacros\Data\Analytics.xml"
+Private Const FILEPATH As String = "C:\test\Analytics.json"
 
 '/**
 ' * Create new objects on init. Need to make sure xml is valid, will disable if not.
 ' */
 Private Sub Class_Initialize()
-    Set this.timer = New MicroStopWatch
-    Set this.doc = New MSXML2.DOMDocument60
-    Set this.record = this.doc.CreateElement("record")
-    If this.doc.Load(filePath) = False Then
-        this.isDisabled = True
-        Debug.Print "Analytics are not being tracked. Possible the xml file is corrupt or missing."
+    Set this.stats = New Scripting.Dictionary
+    
+    ' Make sure there is a file to write to.
+    createAnalyticsFileIfNeeded
+End Sub
+
+Private Sub createAnalyticsFileIfNeeded()
+    Dim fso As New FileSystemObject
+    If Not fso.FileExists(FILEPATH) Then
+        If Not BuildOutFilePath(FILEPATH) = True Then
+            this.isDisabled = True
+            Debug.Print "Analytics are not being tracked. Unable to create filepath: " & FILEPATH
+        End If
     End If
 End Sub
 
@@ -66,65 +73,65 @@ End Sub
 ' * If analytics are being tracked and this object is destroyed then it will complete on it's own.
 ' */
 Private Sub Class_Terminate()
-    If Not this.isComplete And this.wasStarted Then
-        CompleteStats
+    ' Only finalize if not already reported.
+    If this.wasStarted And Not this.wasReported Then
+        FinalizeStats
     End If
 End Sub
-
-'/**
-' * Adds custom xml elements to the current record.
-' * @param {String} name - This is the xml Tag name to be added.
-' * @param {Double} [minutesToSave] - Allows user to mark ahead of time the time saved.
-' */
-Public Sub AddField(ByVal name As String, ByVal value As Variant)
-    CreateElement name, value
-End Sub
-
-'/**
-' * Get count of all records from filepath that don't have an endtime.
-' */
-Public Property Get CountOfInteruptedCode() As Long
-    this.doc.Load filePath
-    CountOfInteruptedCode = this.doc.SelectNodes("//analytics/record[not(endTime)]").length
-End Property
 
 '/**
 ' * This is the main init by the user. It logs the codeName and starts everything off.
 ' * @param {String} codeName - The name of the code (function) being run.
 ' * @param {Double} [minutesToSave] - Allows user to mark ahead of time the time saved.
 ' */
-Public Sub Track(ByVal codeName As String, Optional ByVal minutesToSave As Double)
+Public Sub TrackStats(ByVal codeName As String, Optional ByVal minutesToSave As Variant)
     If this.isDisabled Then
         Exit Sub
     End If
     
+    ' Note that is was started to make sure the stats are logged.
     this.wasStarted = True
-    this.id = GetGUID
-    this.record.setAttribute "id", this.id
-    CreateElement "codeName", codeName
-    CreateElement "username", Environ("UserName")
-    CreateElement "date", Date
-    CreateElement "startTime", Time
-    CreateElement "minutesSaved", minutesToSave
-    LogRecord
-    this.timer.StartTimer
+    AddStat "event", "onUse"
+    AddStat "id", UUID
+    AddStat "codeName", codeName
+    AddStat "username", Environ("UserName")
+    AddStat "date", CStr(Date)
+    AddStat "time", CStr(Time)
+    If Not IsMissing(minutesToSave) Then
+        AddStat "minutesSaved", minutesToSave
+    End If
+    this.startTime = timer
 End Sub
 
-'/**
-' * Private Helper function to easily create new xml elements
-' * and add them to the record element.
-' *
-' * @param {String} name - This is the xml Tag name to be added.
-' * @param {Variant} value - The text value to be added to the xml element.
-' */
-Private Sub CreateElement(ByVal name As String, ByVal value As Variant)
-    Dim element As IXMLDOMElement
-    Set element = this.record.SelectSingleNode(name)
-    If element Is Nothing Then
-        Set element = this.doc.CreateElement(name)
-        this.record.appendChild element
+Public Sub AddStat(ByVal Key As String, ByVal value As Variant)
+    this.stats(Key) = value
+End Sub
+
+Public Sub LogEvent(ByVal eventName As String, ParamArray keyValuePairs() As Variant)
+    ' Check to see that key/value pairs passed in (an even number).
+    If (UBound(keyValuePairs) - LBound(keyValuePairs) + 1) Mod 2 <> 0 Then
+        Debug.Print "[Analitics.LogEvent] Unable to log. Invalid parameters: expecting key/value pairs, but received an odd number of arguments."
+        Exit Sub
     End If
-    element.Text = value
+    
+    ' Add standard stats
+    Dim stats As New Scripting.Dictionary
+    Set stats = New Scripting.Dictionary
+    stats.Add "event", eventName
+    stats.Add "id", UUID
+    stats.Add "username", Environ("UserName")
+    stats.Add "date", CStr(Date)
+    stats.Add "time", CStr(Time)
+    
+    ' Add key values to the return Dictionary.
+    Dim index As Long
+    For index = LBound(keyValuePairs) To UBound(keyValuePairs) Step 2
+        stats.Add keyValuePairs(index), keyValuePairs(index + 1)
+    Next index
+    
+    Debug.Print JSON.Stringify(stats, 2)
+    
+    AppendToTextFile FILEPATH, JSON.Stringify(stats) & ","
 End Sub
 
 '/**
@@ -133,60 +140,27 @@ End Sub
 ' *
 ' * @param {Double} [minutesToSave] - Allows user to add time saved.
 ' */
-Public Sub CompleteStats(Optional ByVal minutesToSave As Double)
+Public Sub FinalizeStats(Optional ByVal minutesToSave As Variant)
     If this.isDisabled Then
         Exit Sub
     End If
     
-    CreateElement "endTime", Time
-    CreateElement "runtimeSeconds", Round(this.timer.Seconds, 3)
-
-    this.isComplete = True
-    If minutesToSave <> 0 Then
-        CreateElement "minutesSaved", minutesToSave
-    End If
+    ' Mark as finalized to not run twice
+    this.wasReported = True
     
-    AppendRecord
-    Debug.Print this.record.xml
-End Sub
+    ' Get the total runtime, rounding this to the third decimal place.
+    AddStat "runtimeSeconds", Math.Round(timer - this.startTime, 3)
 
-'/**
-' * Private helper to find record based on ID and append that xml element.
-' */
-Private Sub AppendRecord()
-    If this.isDisabled Then
-        Exit Sub
+    If Not IsMissing(minutesToSave) Then
+        AddStat "minutesSaved", minutesToSave
     End If
 
-    ' check if xml is loaded correctly...
-    If this.doc.Load(filePath) = False Then
-        Exit Sub
-    End If
+    Debug.Print JSON.Stringify(this.stats, 2)
     
-    Dim oldRecord As IXMLDOMElement
-    Set oldRecord = this.doc.SelectSingleNode("//analytics/record[@id='" & this.id & "']")
-    
-    this.doc.FirstChild.replaceChild this.record, oldRecord
-    this.doc.Save filePath
-End Sub
-
-'/**
-' * Private helper to add xml record element to the xml file stored at const filepath.
-' */
-Private Sub LogRecord()
-    If this.isDisabled Then
-        Exit Sub
-    End If
-
-    ' double check if xml is loaded correctly. Checked at the beggining .
-    If this.doc.Load(filePath) = False Then
-        Debug.Print "Analytics are not being tracked. Possible the xml file is corrupt or missing."
-        Exit Sub
-    End If
-    
-    ' Add new node to root element.
-    this.doc.FirstChild.appendChild this.record
-    this.doc.Save filePath
+    ' Append record to log file. Note, this file is JSON but will not have needed
+    ' Array [] syntax due to appending is much faster then rewriting the entire file.
+    ' Will need to run function to fix this.
+    AppendToTextFile FILEPATH, JSON.Stringify(this.stats) & ","
 End Sub
 
 '/**
@@ -196,11 +170,10 @@ End Sub
 ' * @copywrite 2000
 ' * @see <https://stackoverflow.com/questions/7031347/how-can-i-generate-guids-in-excel>
 ' */
-Private Function GetGUID() As String
+Private Function UUID() As String
     Dim udtGUID As GUID
     If (CoCreateGuid(udtGUID) = 0) Then
-
-        GetGUID = _
+        UUID = _
             String(8 - Len(Hex$(udtGUID.Data1)), "0") & Hex$(udtGUID.Data1) & _
             String(4 - Len(Hex$(udtGUID.Data2)), "0") & Hex$(udtGUID.Data2) & _
             String(4 - Len(Hex$(udtGUID.Data3)), "0") & Hex$(udtGUID.Data3) & _

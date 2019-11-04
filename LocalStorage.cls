@@ -7,141 +7,118 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+'**/
+' * Store values on users machine.
+' *
+' * @ref {Library} Microsoft Scripting Runtime
+' * @ref {Class Module} Console - Used to log to immediate window and log files.
+' * @ref {Class Module} JSON - Used to store key value pairs.
+' * @ref {Modlue} FileSystemUtilities
+' * @ref {Function} FileSystemUtilities.BuildOutFilePath
+' * @ref {Function} FileSystemUtilities.ReadTextFile
+' */
 Option Explicit
 
-Private Const LocalStorageFilePath = "C:\rtmacros\Data\LocalStorage.json"
+'**/ The location of the saved file. */
+Private Property Get localStorageFilePath() As String
+    localStorageFilePath = "C:\Data\LocalStorage.json"
+End Property
 
-
-Public Function GetItem(Key As Variant) As String
-    
-    If CreateFilePath(LocalStorageFilePath) = False Then
+'**/
+' * Gets an item from a key.
+' * @param {String} key The key of the value.
+' * @param {String} [fallback] A default value in case the key doesn't exist.
+' */
+Public Function GetItem(ByVal Key As String, ByVal fallback As Variant) As Variant
+    On Error GoTo Catch
+    If BuildOutFilePath(localStorageFilePath) = False Then
+        GetItem = fallback
         Exit Function
     End If
     
-    Dim Data As Scripting.Dictionary
-    Set Data = JsonParse(ReadTextFile(LocalStorageFilePath))
+    Dim data As Scripting.Dictionary
+    Set data = JSON.Parse(ReadTextFile(localStorageFilePath))
     
-    If Data.Exists(Key) Then
-        GetItem = JsonStringify(Data(Key))
+    If data.Exists(Key) Then
+        GetItem = data(Key)
+    Else
+        GetItem = fallback
     End If
-
-End Function
-
-Public Sub SetItem(Key As Variant, Value As Variant)
-    
-    If CreateFilePath(LocalStorageFilePath) = False Then
-        Exit Sub
-    End If
-    
-    Dim Data As Variant
-    Set Data = JsonParse(ReadTextFile(LocalStorageFilePath))
-    
-    Data(Key) = Value
-    WriteToTextFile LocalStorageFilePath, JsonStringify(Data, 2)
-
-End Sub
-
-Public Sub RemoveItem(Key As Variant)
-
-    If CreateFilePath(LocalStorageFilePath) = False Then
-        Exit Sub
-    End If
-    
-    Dim Data As Scripting.Dictionary
-    Set Data = JsonParse(ReadTextFile(LocalStorageFilePath))
-    
-    If Data.Exists(Key) Then
-        Data.Remove (Key)
-    End If
-
-    WriteToTextFile LocalStorageFilePath, JsonStringify(Data, 2)
-
-End Sub
-
-Public Sub Clear()
-    
-    If CreateFilePath(LocalStorageFilePath) = False Then
-        Exit Sub
-    End If
-    
-    Dim Data As Scripting.Dictionary
-    Set Data = JsonParse(ReadTextFile(LocalStorageFilePath))
-
-    Data.RemoveAll
-
-    WriteToTextFile LocalStorageFilePath, JsonStringify(Data)
-    
-End Sub
-
-Public Sub Display()
-    
-    If CreateFilePath(LocalStorageFilePath) = False Then
-        Exit Sub
-    End If
-    Debug.Print ReadTextFile(LocalStorageFilePath)
-
-End Sub
-
-
-
-'******************************************************************************************
-' PRIVATE METHODS
-'******************************************************************************************
-Private Function ReadTextFile(FilePath As String) As String
-    
-    Dim FSO As New FileSystemObject
-    Dim ts As TextStream
-    
-    Set ts = FSO.OpenTextFile(FilePath, ForReading, False)
-    On Error Resume Next
-    ReadTextFile = ts.ReadAll
-    
-    Set FSO = Nothing
-    Set ts = Nothing
-    
-End Function
-
-Private Function WriteToTextFile(FilePath As String, Value As String)
-    
-    Dim FSO As New FileSystemObject
-    Dim ts As TextStream
-    
-    If CreateFilePath(FilePath) = True Then
-        Set ts = FSO.OpenTextFile(FilePath, ForWriting, True)
-        ts.Write Value
-    End If
-    
-    Set FSO = Nothing
-    Set ts = Nothing
-    
-End Function
-
-Private Function CreateFilePath(FullPath As String) As Boolean
-
-    Dim FSO As New FileSystemObject
-    Dim I As Integer
-    Dim sPath() As String
-    Dim CurPath As String
-    
-    On Error GoTo CATCH
-    sPath = Split(FullPath, "\")
-    
-    'CREATES EACH FOLDER PATH IF NEEDED
-    For I = LBound(sPath, 1) To UBound(sPath, 1) - 1
-        CurPath = CurPath & sPath(I) & "\"
-        If Not FSO.FolderExists(CurPath) Then
-            FSO.createFolder CurPath
-        End If
-    Next I
-    
-    'CREATES FILE IF NEEDED
-    If Not FSO.FileExists(FullPath) Then
-        FSO.CreateTextFile FullPath
-    End If
-    
-    CreateFilePath = True
     Exit Function
-CATCH:
-    'RETURNS FALSE
+Catch:
+    GetItem = fallback
+    Console.Error "LocalStorage.GetItem", Err.description
 End Function
+
+'**/ Set a key value pair to the saved text file. */
+Public Sub SetItem(ByVal Key As String, ByVal value As Variant)
+    On Error GoTo Catch
+    If BuildOutFilePath(localStorageFilePath) = False Then
+        Exit Sub
+    End If
+    
+    ' Read text file. If null then set to an empty string dictionary object
+    Dim jsonValue As String
+    jsonValue = ReadTextFile(localStorageFilePath)
+    jsonValue = IIf(jsonValue = vbNullString, "{}", jsonValue)
+    
+    Dim data As Variant
+    Set data = JSON.Parse(jsonValue)
+    
+    data(Key) = value
+    WriteToTextFile localStorageFilePath, JSON.Stringify(data, 2)
+    
+    Exit Sub
+Catch:
+    Console.Error "LocalStorage.SetItem", Err.description
+End Sub
+
+'**/ Remove an item based on the key */
+Public Sub RemoveItem(ByVal Key As Variant)
+    On Error GoTo Catch
+    If BuildOutFilePath(localStorageFilePath) = False Then
+        Exit Sub
+    End If
+    
+    Dim data As Scripting.Dictionary
+    Set data = JSON.Parse(ReadTextFile(localStorageFilePath))
+    
+    If data.Exists(Key) Then
+        data.Remove (Key)
+    End If
+
+    WriteToTextFile localStorageFilePath, JSON.Stringify(data, 2)
+    
+    Exit Sub
+Catch:
+    Console.Error "LocalStorage.RemoveItem", Err.description
+End Sub
+
+'**/ Clear file contents to an empty dictionary string */
+Public Sub Clear()
+    On Error GoTo Catch
+    If BuildOutFilePath(localStorageFilePath) = False Then
+        Exit Sub
+    End If
+    
+    WriteToTextFile localStorageFilePath, "{}"
+    Exit Sub
+Catch:
+    Console.Error "LocalStorage.Clear", Err.description
+End Sub
+
+'**/ Easy way of reading the contents in the log */
+Public Sub DisplayToImmediateWindow()
+    On Error GoTo Catch
+    If BuildOutFilePath(localStorageFilePath) = False Then
+        Exit Sub
+    End If
+    
+    Debug.Print ReadTextFile(localStorageFilePath)
+    Exit Sub
+Catch:
+    Console.Error "LocalStorage.DisplayToImmediateWindow", Err.description
+End Sub
+
+
 
