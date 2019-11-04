@@ -3,7 +3,7 @@
     <h1 align="center">VBA Function Library</h1>
 </p>
 
-You've found my VBA Libray GitHub repository, which contains functions to help make programming in VBA easier.
+You've found my VBA Libray GitHub repository, which contains functions to help make programming in VBA easier. Try using my boilerplate code as this is more complete package. It has better notes and has been tested.
 
 > This repository is currently under construction, but will be intended to be a place to help make VBA more open source.
 
@@ -11,6 +11,7 @@ You've found my VBA Libray GitHub repository, which contains functions to help m
 ## Table of Contents
 
   1. [Style Example](#style-example)
+  2. [Boilerplate Examples](#boilerplate-functions)
   2. [Array Examples](#array-functions)
   3. [String Examples](#string-functions)
 
@@ -51,6 +52,46 @@ Private Function ArrayLength(ByRef source As Variant) As Long
     ArrayLength = UBound(source) - LBound(source) + 1
 End Function
   ```
+  
+  
+----
+
+## Boilerplate Functions
+
+  ```vb
+  '/**
+  ' * Sample of how to track and use Analytics class.
+  ' * @ref {Class Module} AnalyticsTracker
+  ' * @ref {Class Module} JSON
+  ' * @ref {Module} FileSystemUtilities
+  ' * @ref {Library} Microsoft Scripting Runtime
+  ' */
+  Private Sub howToTrackAnalytics()
+      ' This tracks to a JSON file and the immediate window.
+      ' To be effecent this appends to the text file.
+      ' Because of this the JSON file is missing the outer array
+      ' brackets []. Also includes a comma after each object {},
+      ' So to use this as JSON you must edit those two things.
+      Dim analytics As New AnalyticsTracker
+
+      ' You can track standard stats for code use!
+      ' This collects codeName, username, date, time, timesaved, runtime
+      analytics.TrackStats "test", 5
+
+      ' Can also add custom stats to the main thread.
+      analytics.AddStat "customStat", "I'm custom!"
+
+      ' Also have the ability to log your own custom events. This by default
+      ' still adds things like date, time, username.
+      analytics.LogEvent "onCustom", "name", "Robert", "age", 31
+
+      ' Optional. You can either call this function, or let the
+      ' terminate event in the class to run it.
+      ' An example log looks like: {"event":"onUse", ...},
+      analytics.FinalizeStats
+  End Sub
+  ```
+  **[⬆ back to top](#table-of-contents)**
 
 ----
 
