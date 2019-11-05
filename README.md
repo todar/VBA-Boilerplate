@@ -32,7 +32,7 @@ This was created to be a full application companies can use to share with users.
 
 ## Usage
 
-This project is really meant to be used as a complete package. You can [download the zip version](https://github.com/todar/VBA-Library/archive/master.zip) or run `git clone https://github.com/todar/VBA-Library.git`.
+This project is really meant to be used as a complete package. You can [download the latest release](https://github.com/todar/VBA-Boilerplate/archive/v0.1.0-beta.zip) or run `git clone https://github.com/todar/VBA-Boilerplate.git`.
 
 Alternativly, you can use the source code and pick and choose the tools you need. Just note, many of these tools rely on one another.
 
