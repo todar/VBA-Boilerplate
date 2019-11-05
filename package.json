@@ -1,0 +1,27 @@
+{
+  "name": "vba-boilerplate",
+  "version": "1.0.0",
+  "description": "A template for easily creating complex projects with VBA.",
+  "main": "",
+  "directories": {
+    "doc": "doc"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/todar/VBA-Library.git"
+  },
+  "keywords": [
+    "VBA",
+    "Boilerplate",
+    "Library"
+  ],
+  "author": "Robert Todar",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/todar/VBA-Library/issues"
+  },
+  "homepage": "https://github.com/todar/VBA-Library#readme"
+}

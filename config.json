@@ -1,0 +1,13 @@
+{
+  "name": "boilerplate",
+  "description": "This is where all the settings for the app will go. Currently this is a work in progress",
+  "version": "1.0.0",
+  "testVersion": "1.0.0",
+  "developers": [],
+  "testers": [],
+  "leads": [],
+  "filepaths": {
+    "analytics": ".\\data\\analytics.json",
+    "console": ".\\data\\console.html"
+  }
+}
