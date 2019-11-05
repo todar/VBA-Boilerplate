@@ -1,166 +1,326 @@
-<p align="center">
-    <img width="350px" alt="function meme" src="https://i.pinimg.com/736x/2e/e7/b3/2ee7b37349f798c3460e244143bdd0bc--math-puns-math-humor.jpg">
-    <h1 align="center">VBA Function Library</h1>
-</p>
+# VBA Boilerplate
 
-You've found my VBA Libray GitHub repository, which contains functions to help make programming in VBA easier. Try using my boilerplate code as this is more complete package. It has better notes and has been tested.
+A template for easily creating complex projects with VBA.
 
-> This repository is currently under construction, but will be intended to be a place to help make VBA more open source.
+This includes a bunch of helper libraries, JSON tools, Code Analytics, LocalStorage, Unit Testing, version control and local network distribution.
 
+This was created to be a full application companies can use to share with users.
+
+---
+
+## Other Helpful Resources
+
+- [www.roberttodar.com](https://www.roberttodar.com/) - About me and my background and some of my other projects.
+- [VBA Style Guide](https://github.com/todar/VBA-Style-Guide) - A guide for writing clean VBA code. Notes on how to take notes =)
+- [VBA Arrays](https://github.com/todar/VBA-Arrays) - Array function library, functions that mimic JavaScript Arrays.
+- [VBA Strings](https://github.com/todar/VBA-Strings) - String function library. `ToString`, `Inject`, `StringSimilarity`, and more.
+- [VBA Userform Event Listener](https://github.com/todar/VBA-Userform-EventListener) - Listen to events such as `mouseover`, `mouseout`, `focus`, `blur`, and more.
+
+---
 
 ## Table of Contents
 
-  1. [Style Example](#style-example)
-  2. [Boilerplate Examples](#boilerplate-functions)
-  2. [Array Examples](#array-functions)
-  3. [String Examples](#string-functions)
+1. [Usage](#Usage)
+1. [JSON](#JSON)
+1. [Analytics](#Analytics)
+1. [Console](#Console)
+1. [LocalStorage](#LocalStorage)
+1. [Testing](#Testing)
+1. [Distribution](#Distribution)
 
-## Style Example
+---
 
-  Below is an example function of how I entend all my code to be written. 
+## Usage
 
-  > Please see my [Style Guide](https://github.com/todar/VBA) for how to write clean and maintainable VBA code.
+This project is really meant to be used as a complete package. You can [download the zip version](https://github.com/todar/VBA-Library/archive/master.zip) or run `git clone https://github.com/todar/VBA-Library.git`.
 
-  ```vb
+Alternativly, you can use the source code and pick and choose the tools you need. Just note, many of these tools rely on one another.
+
+There are notes of the references of tools used so you can try to package together what you need but these notes **are not perfect.**
+
+[↑ back to top](#Table-of-Contents)
+
+---
+
+## JSON
+
+A major tool that is used throughout this project is the JSON class Module. This is an adaptation from [VBA-JSON](https://github.com/VBA-tools/VBA-JSON).
+
+This difference with this version is that it is a class module that has a default instance so it can be used without declaring it. This way it mimics the way it would be used in JavaScript.
+
+Also changed `ParseJson` to simply `Parse` and `ConvertJSON` to `Stringify`.
+
+### Example
+
+```vb
 '/**
-' * A simple Dictionary Factory.
-' *
-' * @author Robert Todar <robert@roberttodar.com>
-' * @param {...Variant} keyValuePairs - Key must be valid dictionary key, value can be anything.
-' * @ref {Scripting.Dictionary} MicroSoft Scripting Runtime
-' * @example ToDictionary("Name", "Robert", "Age", 30) '--> { "Name": "Robert, "Age": 30 }
+' * Sample of how to use JSON
+' * @ref {Class Module} JSON
+' * @ref {Library} Microsoft Scripting Runtime
 ' */
-Public Function ToDictionary(ParamArray keyValuePairs() As Variant) As Scripting.Dictionary
-    ' Check to see that key/value pairs passed in (an even number).
-    If arrayLength(CVar(keyValuePairs)) Mod 2 <> 0 Then
-        Err.Raise 5, "ToDictionary", "Invalid parameters: expecting key/value pairs, but received an odd number of arguments."
-    End If
-    
-    ' Add key values to the return Dictionary.
-    Set ToDictionary = New Scripting.Dictionary
-    Dim index As Long
-    For index = LBound(keyValuePairs) To UBound(keyValuePairs) Step 2
-        ToDictionary.Add keyValuePairs(index), keyValuePairs(index + 1)
-    Next index
-End Function
+Private Sub howToUseJSON()
+    ' Here is some sample data. The outer object must be an Array, Dictionary, or
+    ' a Collection. This is to make it valid JSON.
+    ' A note is that Arrays will be parsed as collections for performance reasons.
+    Dim config As New Scripting.Dictionary
+    config.Add "name", "JSONSample"
+    config.Add "users", Array("Robert", "Fred", "Mark")
 
-'/**
-' * Helper function that Returns the number of elements in an Array.
-' * @param {Array<Variant>} source - Array that you want to return the length of.
-' */
-Private Function ArrayLength(ByRef source As Variant) As Long
-    ArrayLength = UBound(source) - LBound(source) + 1
-End Function
-  ```
-  
-  
-----
+    ' Stringify will turn a Dictionary or Array into a string of JSON.
+    ' This can be stored in a text file a parsed back into an object
+    ' using JSON.Parse. Example of that below.
+    ' This example: ~> {"name":"JSONSample","users":["Robert","Fred","Mark"]}
+    Dim JSONString As String
+    JSONString = JSON.Stringify(config)
+    Debug.Print JSONString
 
-## Boilerplate Functions
-
-  ```vb
-  '/**
-  ' * Sample of how to track and use Analytics class.
-  ' * @ref {Class Module} AnalyticsTracker
-  ' * @ref {Class Module} JSON
-  ' * @ref {Module} FileSystemUtilities
-  ' * @ref {Library} Microsoft Scripting Runtime
-  ' */
-  Private Sub howToTrackAnalytics()
-      ' This tracks to a JSON file and the immediate window.
-      ' To be effecent this appends to the text file.
-      ' Because of this the JSON file is missing the outer array
-      ' brackets []. Also includes a comma after each object {},
-      ' So to use this as JSON you must edit those two things.
-      Dim analytics As New AnalyticsTracker
-
-      ' You can track standard stats for code use!
-      ' This collects codeName, username, date, time, timesaved, runtime
-      analytics.TrackStats "test", 5
-
-      ' Can also add custom stats to the main thread.
-      analytics.AddStat "customStat", "I'm custom!"
-
-      ' Also have the ability to log your own custom events. This by default
-      ' still adds things like date, time, username.
-      analytics.LogEvent "onCustom", "name", "Robert", "age", 31
-
-      ' Optional. You can either call this function, or let the
-      ' terminate event in the class to run it.
-      ' An example log looks like: {"event":"onUse", ...},
-      analytics.FinalizeStats
-  End Sub
-  ```
-  **[⬆ back to top](#table-of-contents)**
-
-----
-
-## Array Functions
-
-  ```vb
-  '/**
-  ' * Examples of different array functions.
-  ' * @author Robert Todar <robert@roberttodar.com>
-  ' */
-  Private Sub arrayFunctionExamples()
-      ' * Made array single letter for ease of reading. Do not do this is production code!
-      Dim A As Variant
-      
-      ' Single dim functions to manipulate
-      ArrayPush A, "Banana", "Apple", "Carrot" '--> Banana,Apple,Carrot
-      ArrayPop A                               '--> Banana,Apple --> returns Carrot
-      ArrayUnShift A, "Mango", "Orange"        '--> Mango,Orange,Banana,Apple
-      ArrayShift A                             '--> Orange,Banana,Apple
-      ArraySplice A, 2, 0, "Coffee"            '--> Orange,Banana,Coffee,Apple
-      ArraySplice A, 0, 1, "Mango", "Coffee"   '--> Mango,Coffee,Banana,Coffee,Apple
-      ArrayRemoveDuplicates A                  '--> Mango,Coffee,Banana,Apple
-      ArraySort A                              '--> Apple,Banana,Coffee,Mango
-      ArrayReverse A                           '--> Mango,Coffee,Banana,Apple
-      
-      ' Functions for Array properties
-      ArrayLength A                            '--> 4
-      ArrayIndexOf A, "Coffee"                 '--> 1
-      ArrayIncludes A, "Banana"                '--> True
-      ArrayContains A, Array("Test", "Banana") '--> True
-      ArrayContainsEmpties A                   '--> False
-      ArrayDimensionLength A                   '--> 1 (single dim array)
-      IsArrayEmpty A                           '--> False
-      
-      ' Example where you can flatten a jagged array.
-      ' @note You can also spread dictionaries and collections as well.
-      A = Array(1, 2, 3, Array(4, 5, 6, Array(7, 8, 9)))
-      A = ArraySpread(A)                       '--> 1,2,3,4,5,6,7,8,9
-      
-      ' Functions dealing with Math operators.
-      ArraySum A                               '--> 45
-      ArrayAverage A                           '--> 5
-      
-      ' Filter uses REGEX patterns.
-      A = Array("Banana", "Coffee", "Apple", "Carrot", "Canolope")
-      A = ArrayFilter(A, "^Ca|^Ap")
-      
-      ' Array to string works with both single and double DIM arrays.
-      Debug.Print ArrayToString(A)
-  End Sub
-  ```
-  **[⬆ back to top](#table-of-contents)**
-
-## String Functions
-
-  ```vb
-'/**
-' * Examples of different string functions.
-' * @author Robert Todar <robert@robertodar.com>
-' */
-Private Sub testsForStringFunctions()
-    Debug.Print StringSimilarity("Test", "Tester")                     '->  66.6666666666667
-    Debug.Print LevenshteinDistance("Test", "Tester")                  '->  2
-    Debug.Print Truncate("This is a long sentence", 10)                '-> "This is..."
-    Debug.Print StringBetween("Robert Paul Todar", "Robert", "Todar")  '-> "Paul"
-    Debug.Print StringPadding("1001", 6, "0", True)                    '-> "100100"
-    Debug.Print Inject("Hello,\nMy name is {Name} and I am {Age}!", "Robert", 31)
-        '-> Hello,
-        '-> My name is Robert and I am 30!
+    ' This example uses the JSON string from above and converts it into
+    ' VBA Dictionary. Note that the Array from above is converted into
+    ' a Collection. This is due to performance in iterating over the list
+    ' while parsing.
+    Dim clone As Scripting.Dictionary
+    Set clone = JSON.Parse(JSONString)
 End Sub
-  ```
-  **[⬆ back to top](#table-of-contents)**
+```
+
+[↑ back to top](#Table-of-Contents)
+
+---
+
+## Analytics
+
+This is a helpful class that will track things such as code usage per code and per user, time savings, date, time, runtime, or custom events.
+
+Each event is a JSON object and is appended to a JSON file. For performance reasons, this doesn't parse the JSON each time, instead it is simply appended to the end of the file with a comma at the end of it. For this reason, there is not an opening or closing array brackets either, meaning to use the JSON file you must add these brackets and remove the last comma on the last record.
+
+### Example
+
+```vb
+'/**
+' * Sample of how to track and use Analytics class.
+' * An example log looks something like: {"event":"onUse", ...},
+' * @ref {Class Module} AnalyticsTracker
+' * @ref {Class Module} JSON
+' * @ref {Module} FileSystemUtilities
+' * @ref {Library} Microsoft Scripting Runtime
+' */
+Private Sub howToTrackAnalytics()
+    ' This tracks to a JSON file and the immediate window.
+    ' To be effecent this appends to the text file.
+    ' Because of this the JSON file is missing the outer array
+    ' brackets []. Also includes a comma after each object {},
+    ' So to use this as JSON you must edit those two things.
+    Dim analytics As New AnalyticsTracker
+
+    ' You can track standard stats for code use!
+    ' This collects codeName, username, date, time, timesaved, runtime
+    analytics.TrackStats "test", 5
+
+    ' Can also add custom stats to the main thread.
+    analytics.AddStat "customStat", "I'm custom!"
+
+    ' Also have the ability to log your own custom events. This by default
+    ' still adds things like date, time, username.
+    analytics.LogEvent "onCustom", "name", "Robert", "age", 31
+
+    ' Optional! You can either call this function, or let the
+    ' terminate event in the class to run it. Really the only
+    ' function that needs to be called in order to collect stats
+    ' is `TrackStats` or `AddStat`. Put that at the top of a function
+    ' and it will log all the basic stats.
+    analytics.FinalizeStats
+End Sub
+```
+
+#### Analytics JSON file Example
+
+_Note that this is after it has added the array brackets `[]` and removed the last comma on the second record._
+
+```json
+[
+  {
+    "event": "onCustom",
+    "id": "3C1C232D5D1E457E99488784F6CAD9C1",
+    "username": "rtoda02",
+    "date": "11/5/2019",
+    "time": "9:40:52 AM",
+    "name": "Robert",
+    "age": 31
+  },
+  {
+    "event": "onUse",
+    "id": "27985BF694144102BA13914D968C735D",
+    "codeName": "test",
+    "username": "rtoda02",
+    "date": "11/5/2019",
+    "time": "9:40:52 AM",
+    "minutesSaved": 5,
+    "customStat": "I'm custom!",
+    "runtimeSeconds": 0.012
+  }
+]
+```
+
+[↑ back to top](#Table-of-Contents)
+
+---
+
+## Console
+
+A simple and easy way to log info, warnings, or especially errors from all your users. This again is created to mimic JavaScripts Console in a limited way. This stores each log to both the users system and the shared file.
+
+Just like the JSON Class Module, this one also has a default instance and doesn't need to be declared in order to use.
+
+For neatness in looking at the report, uses a template HTML file located at `./templates/console.html`. So this file is required in order to work.
+
+### Example
+
+```vb
+'/**
+' * Sample of how to use Console
+' * @ref {Modlue} FileSystemUtilities
+' * @ref {Function} FileSystemUtilities.BuildOutFilePath
+' * @ref {Function} FileSystemUtilities.ReadTextFile
+' * @ref {File} `./templates/console.html`
+' */
+Private Sub howToUseConsole()
+    ' Each method takes in a source so the log knows where the log occured
+    ' and a message, and this can be whatever makes the most sense.
+    ' The various methods have a different style logo for each one and
+    ' would be used to filter on each one.
+    ' This also logs to the immediate window as well.
+    Console.Log "Testing.howToUseConsole", "This is a sample info log!"
+    Console.Warn "Testing.howToUseConsole", "This is a sample warning log!"
+    Console.Error "Testing.howToUseConsole", "This is a sample error log!"
+End Sub
+```
+
+#### Immediate window Results
+
+```
+[+] [9:34:13 AM] [Testing.howToUseConsole] This is a sample info log!
+[!] [9:34:13 AM] [Testing.howToUseConsole] This is a sample warning log!
+[X] [9:34:13 AM] [Testing.howToUseConsole] This is a sample error log!
+```
+
+#### HTML Report Example
+
+![HTML Report Example](./assests/log-report-example.png)
+
+[↑ back to top](#Table-of-Contents)
+
+---
+
+## LocalStorage
+
+LocalStorage is a nice way of storing things such as settings and remember things the user might need in later sessions. This is all stored as JSON in a JSON file stored in the users system.
+
+### Example
+
+```vb
+'/**
+' * Sample of how to use LocalStorage
+' * @ref {Library} Microsoft Scripting Runtime
+' * @ref {Class Module} Console - Used to log to immediate window and log files.
+' * @ref {Class Module} JSON - Used to store key value pairs.
+' * @ref {Modlue} FileSystemUtilities
+' * @ref {Function} FileSystemUtilities.BuildOutFilePath
+' * @ref {Function} FileSystemUtilities.ReadTextFile
+' */
+Private Sub howToUseLocalStorage()
+    ' Setting an item is easy, it stores info based on key value pairs.
+    ' This will either override what's in there or create a new pair if
+    ' it doesn't already exist.
+    LocalStorage.SetItem "name", "Robert"
+
+    ' Getting an item you simply call it by the key you stored it as.
+    ' By default you have to pass in a fallback value. This value is used
+    ' only if there is some error in retriving the value or if it doesn't
+    ' exist. This helps prevent any errors.
+    Dim name As String
+    name = LocalStorage.GetItem("name", "Robert")
+
+    ' Easily show the storage in the immediate window.
+    LocalStorage.DisplayToImmediateWindow
+
+    ' Easily remove a sinlge item by it's key
+    LocalStorage.RemoveItem "name"
+
+    ' Or you can remove all items and reset the storage back to an empty object {}
+    LocalStorage.Clear
+End Sub
+```
+
+[↑ back to top](#Table-of-Contents)
+
+---
+
+## Testing
+
+These are several Class Modules and a Factory function to easily create tests. This is still in early development but can be used for simple use cases.
+
+The function `Test` is a factory method to easily run tests without having to create a `TestSuite` class. See the example below of how to use this, the easiest way of learning it is by playing around with this example.
+
+The naming convention for test functions is that they should all start with `Test` to easily find them and run them for the immediate window.
+
+### Example
+
+```vb
+'**/
+' * Sample of how to use the unit testing tools.
+' *
+' * @ref {Class Module} TestSuite - Collection of tests.
+' * @ref {Class Module} TestCase - A group of related tests.
+' * @ref {Class Module} TestMatcher - The test functions.
+' * @ref {Class Module} PerformanceTimer - To track runtime.
+' */
+Public Function TestSampleTests() As TestSuite
+    With test("Sample Math tests")
+        With .test("two plus two")
+            .Expect(2 + 2).ToEqual 4
+            .Expect(2 + 2).ToBeLessThan 5
+        End With
+
+        With .test("six times one")
+            .Expect(6 * 1).ToEqual 6
+            .Expect(6 * 1).ToBeGreaterThanOrEqual 6
+        End With
+
+        With .test("five minus two")
+            .Expect(5 - 2).ToEqual 3
+            .Expect(5 - 2).ToBeGreaterThan 2
+        End With
+
+        With .test("Adding 1 + 1 equals 2")
+            .Expect(1 + 1).ToEqual 2
+        End With
+    End With
+End Function
+```
+
+#### Immediate Window
+
+```
+--------------------------------------
+# Sample Math tests
+--------------------------------------
++ two plus two (2.644ms)
++ six times one (0.024ms)
++ five minus two (0.089ms)
++ Adding 1 + 1 equals 2 (0.076ms)
+
+Test Cases: 4 passed, 4 total
+Tests:      7 passed, 7 total
+Time:       2.833ms
+Status:     PASS
+```
+
+[↑ back to top](#Table-of-Contents)
+
+---
+
+## Distribution
+
+Docs on the way!
+
+[↑ back to top](#Table-of-Contents)
