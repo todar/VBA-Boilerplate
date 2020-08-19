@@ -1,5 +1,7 @@
 # VBA Boilerplate
 
+<a href="https://www.buymeacoffee.com/todar" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" style="height: 51px !important;width: 217px !important;" ></a>
+
 A template for easily creating complex projects with VBA.
 
 This includes a bunch of helper libraries, JSON tools, Code Analytics, LocalStorage, Unit Testing, version control and local network distribution.
